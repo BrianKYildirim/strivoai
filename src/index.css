@@ -1,0 +1,308 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
+All colors MUST be HSL.
+*/
+
+@layer base {
+  /* Dark mode (default) */
+  :root,
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 357 100% 68%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 357 100% 68%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* First green in the system (quick 260803-mqs): completion state on the
+       analysis stage ladder. --primary is coral, so a "done" tick had no token.
+       Hue follows the palette's existing green (--btn-job: 160 70% 45%). */
+    --success: 152 62% 50%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 357 100% 68%;
+
+    --radius: 0.75rem;
+
+    --gradient-glow: linear-gradient(135deg, hsl(357 100% 68% / 0.2), hsl(357 100% 68% / 0));
+    --gradient-coral: linear-gradient(135deg, hsl(357 100% 68%), hsl(357 100% 78%));
+    --gradient-animated: linear-gradient(45deg, hsl(357 100% 68%), hsl(357 100% 78%), hsl(357 100% 68%));
+    --shadow-coral: 0 0 40px hsl(357 100% 68% / 0.3);
+    --shadow-coral-lg: 0 10px 60px hsl(357 100% 68% / 0.4);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* Action button colors */
+    --btn-linkedin: 210 100% 56%;
+    --btn-compass: 280 70% 55%;
+    --btn-job: 160 70% 45%;
+    --logo-filter: none;
+  }
+
+  /* Light mode */
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 8%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
+
+    --primary: 357 100% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 94%;
+    --secondary-foreground: 0 0% 15%;
+
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 357 100% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Darker L than the dark-theme value for contrast against white. */
+    --success: 152 68% 34%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 357 100% 55%;
+
+    --gradient-glow: linear-gradient(135deg, hsl(357 100% 55% / 0.15), hsl(357 100% 55% / 0));
+    --gradient-coral: linear-gradient(135deg, hsl(357 100% 55%), hsl(357 100% 65%));
+    --gradient-animated: linear-gradient(45deg, hsl(357 100% 55%), hsl(357 100% 65%), hsl(357 100% 55%));
+    --shadow-coral: 0 0 40px hsl(357 100% 55% / 0.2);
+    --shadow-coral-lg: 0 10px 60px hsl(357 100% 55% / 0.25);
+    --logo-filter: brightness(0) saturate(100%);
+  }
+}
+
+@layer utilities {
+  .glass-effect {
+    background: hsl(0 0% 5% / 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(0 0% 100% / 0.1);
+  }
+
+  .hover-lift {
+    transition: var(--transition-smooth);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-coral-lg);
+  }
+
+  .gradient-text {
+    background: var(--gradient-coral);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .animated-gradient {
+    background: var(--gradient-animated);
+    background-size: 300% 300%;
+    animation: gradient-shift 3s ease infinite;
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /*
+   * Phase 03 · 03-10 · UI-SPEC F5 — dynamic viewport units with a DETERMINISTIC
+   * fallback.
+   *
+   * Do NOT express this as the Tailwind pair `min-h-screen min-h-[100dvh]`.
+   * Tailwind emits generated utilities grouped by property with its own internal
+   * sort, so which `min-height` declaration wins is NOT guaranteed by the order
+   * the classes appear in the `class` attribute. That pattern therefore produces
+   * a fallback that happens to work on one build and silently inverts on another
+   * (03-RESEARCH § Common Pitfalls, Pitfall 6).
+   *
+   * A single rule that declares the `vh` value and then the `dvh` value in source
+   * order is the only construction where the cascade is deterministic: engines
+   * without `dvh` support drop the second declaration and keep the first;
+   * engines with it take the later one.
+   *
+   * `src/components/ui/sidebar.tsx` already uses `100svh` deliberately and is
+   * left alone.
+   */
+  .min-h-viewport {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .h-viewport {
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  /* Gentle static glow effect for interactive elements */
+  .gentle-glow {
+    box-shadow: 0 0 20px 0 hsl(var(--primary) / 0.08);
+  }
+
+  .gentle-glow:hover {
+    box-shadow: 0 0 30px 4px hsl(var(--primary) / 0.2);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* The authenticated rail is intentionally narrower on phones. Match its
+   * content gutter to the public shell so moving through auth/onboarding/app
+   * pages keeps the same usable width and visual rhythm. Desktop is untouched. */
+  @media (max-width: 639px) {
+    .app-shell-content .container {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+  }
+
+  /* Typography hierarchy using Inter weights */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl leading-tight;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl leading-tight;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl leading-snug;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl leading-snug;
+  }
+
+  p, li {
+    @apply font-normal leading-relaxed;
+    line-height: 1.65;
+    word-break: normal;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  /*
+   * Phase 03 · 03-10 · UI-SPEC F3 — a long unbroken token in a heading (a
+   * pasted URL, a filename, a model-supplied string) must not be able to widen
+   * the page. `overflow-wrap` already covered `p, li`; headings were the gap.
+   * `hyphens` is deliberately NOT applied here — headings should break only
+   * when there is no other option.
+   */
+  h1, h2, h3, h4, h5, h6 {
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  /* Labels and small UI text */
+  label, .label {
+    @apply font-medium text-sm;
+  }
+
+  /*
+   * Phase 03 · 03-10 · UI-SPEC F6 — under `prefers-reduced-motion: reduce`
+   * there must be ZERO infinite animations on any Phase-3 surface.
+   *
+   * Tailwind's `animate-*` utilities and hand-authored `@keyframes` are CSS
+   * animations, so they are NOT reachable from framer-motion's
+   * `useReducedMotion()` gate — a component-level fix cannot close them and a
+   * per-utility opt-out would silently miss the next one added. This blanket
+   * reset is the only construction that holds for every current AND future CSS
+   * animation.
+   *
+   * Deliberately scoped to `animation` (plus `scroll-behavior`, which the base
+   * layer sets to `smooth`): `transition` is NOT reset, because transitions are
+   * finite, are not part of F6's budget, and several components rely on
+   * `transitionend`. framer-motion's RAF/WAAPI loops are gated separately at the
+   * component level via `useReducedMotion()` and are asserted by
+   * `src/test/platform/responsive-source-guard.test.ts` — `getAnimations()`
+   * structurally cannot see them (03-RESEARCH Pitfall 8 / residual R-08).
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+/* Phase 24 Brand-v2 tokens (D-15/D-16) — SCOPED to .theme-v2. */
+.theme-v2 {
+  --bg-deep: #0E0F12;
+  --surface-card: #16181D;
+  --surface-elevated: #1F2228;
+  --accent-red: #E23B3B;
+  --accent-red-glow: rgba(226, 59, 59, 0.25);
+  --text-primary: #F5F5F5;
+  --text-muted: #9CA3AF;
+  --radius-boxy: 8px;
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter Tight', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+}
+.theme-v2 .font-display { font-family: var(--font-display); }
+.theme-v2 .font-mono    { font-family: var(--font-mono); }

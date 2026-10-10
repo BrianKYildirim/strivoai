@@ -1,0 +1,27 @@
+Synthetic Loadtest Candidate
+Senior Software Engineer
+Portland, OR
+candidate@loadtest.strivio.invalid  |  github.com/synthetic-loadtest
+
+PROFESSIONAL SUMMARY
+Senior software engineer with eight years of experience building reliable,
+scalable web platforms and leading cross-functional engineering teams.
+
+EXPERIENCE
+Synthetic Systems Inc., Portland, OR
+Senior Software Engineer (2020 - 2024)
+- Built and shipped scalable web services in TypeScript, Node, and Postgres.
+- Led a team of four engineers and improved deployment reliability by forty percent.
+- Reduced average API latency from ninety to forty milliseconds through caching.
+- Mentored junior engineers and established the team code-review standards.
+
+Placeholder Labs, Remote
+Software Engineer (2016 - 2020)
+- Designed and delivered customer-facing React features used by many users.
+- Automated the continuous integration pipeline, cutting release time in half.
+
+EDUCATION
+Bachelor of Science in Computer Science, State University, 2016
+
+SKILLS
+TypeScript, JavaScript, React, Node, Postgres, Supabase, Playwright, CI/CD, AWS.

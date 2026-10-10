@@ -1,0 +1,3 @@
+# Treat binary test fixtures as binary so autocrlf never line-ending-mangles
+# them on checkout (a CRLF-corrupted PDF would fail PDF.js extraction in CI).
+*.pdf binary

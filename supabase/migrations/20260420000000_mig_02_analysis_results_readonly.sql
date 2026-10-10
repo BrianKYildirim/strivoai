@@ -1,0 +1,27 @@
+-- Phase 21 MIG-02: Lock `analysis_results` to read-only from user JWTs.
+--
+-- REQ-ID: MIG-02.
+-- Decisions: D-05 (drop user INSERT policy), D-06 (frontend save path closed
+--            in Plan 21-04 Task 1 before this migration runs), D-07 (no user
+--            DELETE policy exists; default-deny already blocks it), D-14
+--            (rollback NOT reversed — the lock remains even if
+--            MERIT_SYSTEM_ENABLED is flipped back to false).
+--
+-- Source policy created in: 20251222223116_8abce0df-2f95-472e-a9e5-dca9a6d69c53.sql
+-- Style precedent:          20260417000000_usage_tracking_user_select_policy.sql
+--
+-- Effect: user JWTs can still SELECT their own rows via the preserved
+--         "Users can view their own analysis results" policy. Service-role
+--         writers (analyze-career, recruiting-lens) bypass RLS and are
+--         unaffected.
+--
+-- IF EXISTS: makes re-runs idempotent if the migration is applied twice, or
+-- if the policy was already dropped manually during staging prep.
+--
+-- Post-apply verification (run in Supabase SQL editor against the target project):
+--   SELECT policyname, cmd
+--   FROM pg_policies
+--   WHERE schemaname = 'public' AND tablename = 'analysis_results';
+-- Expected: exactly one row → ("Users can view their own analysis results", SELECT).
+
+DROP POLICY IF EXISTS "Users can create their own analysis results" ON public.analysis_results;

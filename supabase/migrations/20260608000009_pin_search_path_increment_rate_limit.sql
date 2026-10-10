@@ -1,0 +1,44 @@
+-- DB-05 (Plan 08-04, D-03 risk-tier): pin search_path on increment_rate_limit with = public.
+--
+-- Symptom (advisor: function_search_path_mutable, WARN -- the REMAINING 1 of 1 after Plan 08-03
+--   resolved ts_to_utc_date):
+--   public.increment_rate_limit(text, bigint) has proconfig = null (no pinned search_path), so it
+--   inherits the caller's mutable search_path. An attacker able to create objects in a schema
+--   earlier on the search path could shadow an unqualified reference (search-path injection) on a
+--   SECURITY-relevant RPC. Splinter lint 0011 flags this.
+--
+-- Root cause:
+--   The function was created (20260330000000_add_rate_limit_counters.sql:27-41) without a
+--   SET search_path clause and is SECURITY INVOKER (security_definer = false).
+--
+-- CRITICAL -- pin with = public, NEVER = '' (load-bearing; Pitfall 3):
+--   The function body references UNQUALIFIED `rate_limit_counters` in its ON CONFLICT clause:
+--     DO UPDATE SET counter = rate_limit_counters.counter + 1   (line 37 of the create migration)
+--   Under search_path = '' that bare name fails to resolve at runtime -> the RPC throws -> a 500
+--   on EVERY rate-limit check. checkRateLimit/checkRateLimitByKey
+--   (supabase/functions/_shared/rate-limiter.ts:90,129) gate live, business-critical analysis
+--   paths via getServiceClient().rpc('increment_rate_limit', ...). A 500 here would break those
+--   flows. = public matches the live public.rate_limit_counters location, resolves the bare ref,
+--   and is the smaller, provably-zero-change move (the repo convention for functions touching
+--   public.* objects -- e.g. reset_subscription_merits uses SET search_path = public, pg_temp).
+--   Do NOT "simplify" this to = '' -- it would 500 the rate-limiter.
+--
+-- D-03 read-map (zero-observable-change):
+--   The ONLY caller is supabase/functions/_shared/rate-limiter.ts (lines 90 and 129), invoked via
+--   getServiceClient().rpc('increment_rate_limit', ...). With = public the unqualified
+--   rate_limit_counters reference still resolves to public.rate_limit_counters exactly as today, so
+--   the RPC returns the same integer counter -- no behavior change, no 500.
+--
+-- Why ALTER FUNCTION (not CREATE OR REPLACE):
+--   This is an attribute-only change (the search_path setting). ALTER FUNCTION ... SET leaves the
+--   body, volatility, and the SECURITY-INVOKER mode untouched; CREATE OR REPLACE would re-define the
+--   body unnecessarily (larger surface, not preferred).
+--
+-- Re-runnability (NFR-01): ALTER FUNCTION ... SET is idempotent (safe to re-apply).
+
+-- ── FORWARD ───────────────────────────────────────────────────────────────────
+ALTER FUNCTION public.increment_rate_limit(text, bigint) SET search_path = public;
+
+-- ── ROLLBACK (DB-06) ──────────────────────────────────────────────────────────
+-- Restores the captured prior state (proconfig = null, i.e. no pinned search_path):
+--   ALTER FUNCTION public.increment_rate_limit(text, bigint) RESET search_path;

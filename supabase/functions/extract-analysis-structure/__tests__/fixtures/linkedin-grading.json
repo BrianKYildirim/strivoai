@@ -1,0 +1,20 @@
+{
+  "id": "analysis-linkedin-1",
+  "user_id": "user-1",
+  "source_reference": "john-doe",
+  "primary_score": 76,
+  "raw_response": {
+    "rawScore": 76,
+    "profileUrl": "https://www.linkedin.com/in/john-doe",
+    "profileIdentifier": "john-doe",
+    "scoreJustification": "The profile is complete but needs stronger proof points.",
+    "topFixes": ["Add quantified impact", "Rewrite headline"],
+    "sectionBreakdown": [
+      { "name": "Profile Completeness", "score": 82 },
+      { "name": "Experience", "score": 70 }
+    ],
+    "metadata": {
+      "linkedinGradeId": "grade-1"
+    }
+  }
+}

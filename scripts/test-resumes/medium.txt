@@ -1,0 +1,78 @@
+PRIYA SHARMA
+priyasharma@uci.edu | (555) 234-5678 | linkedin.com/in/priyasharma | Irvine, CA
+
+EDUCATION
+
+University of California, Irvine
+Bachelor of Arts in Business Economics, Minor in Informatics
+Expected Graduation: June 2026
+GPA: 3.68/4.00
+- Dean's Honor List: Fall 2023, Spring 2024, Fall 2024
+- Relevant Coursework: Financial Accounting, Econometrics, Business Analytics, Data Management, Marketing Strategy, Corporate Finance
+
+EXPERIENCE
+
+Marketing Analytics Intern
+BrandWave Digital, Los Angeles, CA
+June 2025 - September 2025
+- Analyzed campaign performance data across 5 digital channels using Google Analytics and Tableau, identifying a 23% underperforming segment that was reallocated for $15K monthly savings
+- Created weekly performance dashboards in Tableau for the marketing team of 12, reducing report generation time from 4 hours to 30 minutes
+- Conducted A/B testing on 8 email campaigns, increasing open rates by 18% and click-through rates by 12% through data-driven subject line optimization
+- Presented quarterly analytics review to VP of Marketing, summarizing key trends and recommending budget reallocation across channels
+- Managed social media analytics tracking for 3 client accounts with combined 500K+ followers
+
+Finance Intern
+Pacific Coast Capital, Irvine, CA
+January 2025 - April 2025
+- Built financial models in Excel to evaluate 6 potential investment opportunities totaling $2.3M in projected value
+- Performed due diligence research on 4 target companies, compiling market analysis reports that informed investment committee decisions
+- Automated monthly portfolio performance reporting using Python scripts, reducing preparation time by 60%
+- Assisted senior analysts with quarterly earnings analysis for 15 portfolio companies
+- Prepared pitch deck materials for 2 client presentations on emerging market opportunities
+
+PROJECTS
+
+Customer Churn Prediction Model
+January 2025 - March 2025
+- Developed a machine learning model using Python and scikit-learn to predict customer churn for a subscription-based service
+- Cleaned and preprocessed a dataset of 50,000 customer records, handling missing values and feature engineering
+- Achieved 87% accuracy using Random Forest classifier after hyperparameter tuning with GridSearchCV
+- Presented findings to class of 35 students, recommending targeted retention strategies based on model insights
+
+UCI Dining Hall Review Platform
+September 2024 - December 2024
+- Designed and developed a web application using HTML, CSS, and JavaScript that allows students to rate and review campus dining options
+- Implemented a recommendation engine using collaborative filtering to suggest meals based on dietary preferences
+- Collected 400+ reviews from beta testing with 80 student testers during a 2-week pilot
+
+Social Media Sentiment Analysis Dashboard
+June 2024 - August 2024
+- Built a real-time sentiment analysis tool using Python and the Twitter API to track brand perception across social media
+- Visualized sentiment trends using Plotly, displaying daily sentiment scores and keyword frequency for 3 tracked brands
+- Deployed the dashboard on Streamlit Cloud for stakeholder access with automatic daily data refresh
+
+SKILLS
+
+Technical: Excel (Advanced - VLOOKUP, PivotTables, Macros), SQL, Python, Tableau, Google Analytics, R
+Tools: Salesforce, HubSpot, Jira, Slack, Microsoft Office Suite, Google Workspace
+Data: Statistical Analysis, A/B Testing, Data Visualization, Financial Modeling, Market Research
+Soft Skills: Cross-functional Collaboration, Client Communication, Presentation Skills
+
+LEADERSHIP
+
+Vice President, Business Economics Student Association (BESA)
+September 2024 - Present
+- Organized 6 networking events connecting 200+ students with industry professionals from Goldman Sachs, Deloitte, and Amazon
+- Managed a budget of $8,000 for annual programming, negotiating venue sponsorships that saved 30% on event costs
+- Led a team of 8 board members, coordinating weekly meetings and delegating responsibilities for major events
+
+Peer Mentor, UCI Campuswide Honors Program
+September 2023 - June 2024
+- Mentored 5 incoming freshmen on academic planning, course selection, and campus involvement strategies
+- Organized monthly study groups and workshop sessions for honors students in economics and business courses
+
+CERTIFICATIONS
+
+Google Data Analytics Professional Certificate
+Completed: August 2024
+- 8-course specialization covering data cleaning, analysis, visualization, and SQL querying

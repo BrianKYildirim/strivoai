@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      XDEV-05 / OT-19: `viewport-fit=cover` lets `env(safe-area-inset-*)` resolve on
+      notched devices. `user-scalable=no` and `maximum-scale` are deliberately ABSENT —
+      pinch-zoom is a WCAG 1.4.4 requirement and must never be disabled here.
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Strivo AI</title>
+    
+    <!-- Favicons for all browsers and devices -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48">
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="512x512">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    
+    <!-- Google Search Console verification - replace YOUR_VERIFICATION_CODE with your actual code -->
+    <!-- <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE" /> -->
+    <meta
+      name="description"
+      content="AI-powered resume analyzer that helps you beat Applicant Tracking Systems and land your dream job. Get instant feedback, ATS scoring, and personalized job recommendations."
+    />
+    <meta name="author" content="Strivo" />
+    <link rel="canonical" href="https://strivoai.net" />
+
+    <!-- Inter Font - Single global font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- Phase 24 brand-v2 fonts (D-17): Fraunces (display), Inter Tight (body), JetBrains Mono (numerics) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+    <meta property="og:title" content="Strivo AI | Beat the ATS, Win Interviews" />
+    <meta
+      property="og:description"
+      content="AI-powered resume analyzer that helps you beat Applicant Tracking Systems and land your dream job. Get instant feedback, ATS scoring, and personalized job recommendations."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://strivoai.net" />
+    <meta property="og:image" content="/strivo-og-image.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@StrivoAI" />
+    <meta name="twitter:image" content="/strivo-og-image.png" />
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <!--
+      XDEV-01 / UI-SPEC Surface A (D-08a) — the PRE-BUNDLE browser gate.
+
+      A SIBLING of #root, never a child: React owns #root and would clear anything
+      placed inside it, and the gate has to be removable deterministically. It starts
+      empty and stays empty on a healthy boot.
+    -->
+    <div id="browser-gate"></div>
+
+    <!--
+      The gate script. ES5 ONLY. It runs BEFORE the module bundle is parsed, because a
+      browser too old to parse modern syntax never reaches a single line inside src/ —
+      that is the entire reason this lives in index.html rather than in the app.
+
+      Six hard rules (UI-SPEC Surface A):
+        1. /supported-browsers.html is a STATIC file in public/, never an SPA route.
+        2. src/main.tsx sets window.__strivoBooted and removes #browser-gate right
+           after render, so neither fallback survives a successful boot.
+        3. Exactly one fallback may ever render. A1 and A2 are different diagnoses.
+        4. No network request, no storage read, no cookie. D-08 rule 4.
+        5. #browser-gate carries role="alert" and no aria-live.
+        6. The gate never fights #root for the viewport; it removes itself instead.
+
+      Its syntax and its no-network/no-storage properties are machine-enforced by
+      src/test/platform/es5-guard-source-guard.test.ts. Modern syntax added here would
+      throw a SyntaxError in the very browser this exists to serve, turning the guard
+      into the white screen it was written to replace.
+    -->
+    <script>
+      (function () {
+        // Exactly one fallback may ever paint. A1 is a deterministic capability
+        // verdict; A2 is a heuristic timer. Telling somebody on a slow connection
+        // that their browser is unsupported is a contract violation, so the two
+        // messages are separate and this boolean keeps them mutually exclusive.
+        var rendered = false;
+
+        // Frozen dark-theme token mirror (UI-SPEC "one hardcoded-color
+        // exemption"). Hardcoded because this must survive a total stylesheet,
+        // webfont and asset failure. The inset shorthand is repeated as longhands so
+        // an engine that does not know the shorthand still pins the container.
+        var CONTAINER_STYLE =
+          'position: fixed; inset: 0; top: 0; right: 0; bottom: 0; left: 0;' +
+          ' display: flex; align-items: center; justify-content: center;' +
+          ' padding: 24px; background: #000000; color: #FFFFFF;' +
+          ' font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;' +
+          ' z-index: 2147483647;';
+        var INNER_STYLE = 'max-width: 512px; text-align: center;';
+        var HEADING_STYLE =
+          'font-size: 28px; line-height: 1.2; font-weight: 600; margin: 0 0 16px;';
+        var BODY_STYLE =
+          'font-size: 16px; line-height: 1.65; color: #FFFFFF; margin: 0 0 24px;';
+        var LINK_STYLE =
+          'color: #FF5C64; text-decoration: underline; display: inline-block;' +
+          ' min-height: 44px; line-height: 44px;';
+        var FOOTER_STYLE =
+          'font-size: 14px; line-height: 1.4; color: #999999; margin: 24px 0 0;';
+
+        // Every string this gate renders is a STATIC literal declared below. Nothing
+        // is read from the URL, a query parameter or any other input, and no markup
+        // is ever assigned as a string — text goes in through createTextNode, which
+        // cannot interpret markup. This is the one surface with no framework escaping.
+        function node(tag, style, text) {
+          var element = document.createElement(tag);
+          if (style) {
+            element.style.cssText = style;
+          }
+          if (text) {
+            element.appendChild(document.createTextNode(text));
+          }
+          return element;
+        }
+
+        function link(href, text) {
+          var anchor = node('a', LINK_STYLE, text);
+          anchor.setAttribute('href', href);
+          return anchor;
+        }
+
+        function render(testid, heading, body, href, linkText, footerLead, footerHref, footerLinkText) {
+          if (rendered) {
+            return;
+          }
+          var host = document.getElementById('browser-gate');
+          if (!host) {
+            return;
+          }
+          rendered = true;
+
+          host.setAttribute('role', 'alert');
+          host.setAttribute('data-testid', testid);
+          host.style.cssText = CONTAINER_STYLE;
+
+          var inner = node('div', INNER_STYLE, '');
+          inner.appendChild(node('h1', HEADING_STYLE, heading));
+          inner.appendChild(node('p', BODY_STYLE, body));
+          inner.appendChild(link(href, linkText));
+
+          var footer = node('p', FOOTER_STYLE, footerLead);
+          footer.appendChild(link(footerHref, footerLinkText));
+          footer.appendChild(document.createTextNode('.'));
+          inner.appendChild(footer);
+
+          host.appendChild(inner);
+        }
+
+        // A1 — capability failure. Deterministic and immediate.
+        function renderUnsupported() {
+          render(
+            'browser-gate-unsupported',
+            "Strivo can't run in this browser",
+            'Your browser is missing features Strivo needs. Update it to the latest version, or open Strivo in the current Chrome, Safari, Firefox or Edge.',
+            '/supported-browsers.html',
+            'See supported browsers',
+            'Already up to date? ',
+            '/',
+            'Reload the page'
+          );
+        }
+
+        // A2 — boot watchdog. Heuristic, so the copy blames neither the browser nor
+        // the user: a slow connection and a just-shipped update look identical here.
+        function renderBootTimeout() {
+          render(
+            'browser-gate-boot-timeout',
+            "Strivo didn't finish loading",
+            'This can happen on a slow connection or just after an update. Reload to try again.',
+            '/',
+            'Reload',
+            'Still stuck? ',
+            '/supported-browsers.html',
+            'See supported browsers'
+          );
+        }
+
+        // Probe only what an ES5 script can honestly probe. Dynamic module loading is
+        // NOT probed: reaching it needs runtime code evaluation, which a future CSP
+        // could break, and the A2 watchdog already covers module-parse failure. Do not
+        // try to make this omniscient — fine-grained probing is the in-app gate's job.
+        // D-06: capabilities are probed, never a user-agent version string.
+        function capable() {
+          try {
+            if (typeof window.Promise !== 'function') {
+              return false;
+            }
+            if (typeof window.fetch !== 'function') {
+              return false;
+            }
+            if (typeof Object.assign !== 'function') {
+              return false;
+            }
+            if (typeof Array.prototype.includes !== 'function') {
+              return false;
+            }
+            if (typeof window.HTMLScriptElement !== 'function') {
+              return false;
+            }
+            if (!('noModule' in window.HTMLScriptElement.prototype)) {
+              return false;
+            }
+            if (typeof window.URL !== 'function') {
+              return false;
+            }
+            if (typeof window.URLSearchParams !== 'function') {
+              return false;
+            }
+            // Presence is not construction: some old engines expose the name and
+            // throw when it is used. Literal inputs only, never the real page address
+            // — nothing this gate renders may ever derive from a URL.
+            new window.URL('https://gate.invalid/');
+            new window.URLSearchParams('a=1');
+            return true;
+          } catch (probeError) {
+            return false;
+          }
+        }
+
+        function armWatchdog() {
+          setTimeout(function () {
+            if (rendered) {
+              return;
+            }
+            if (window.__strivoBooted === true) {
+              return;
+            }
+            renderBootTimeout();
+          }, 8000);
+        }
+
+        try {
+          if (!capable()) {
+            renderUnsupported();
+          }
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', armWatchdog, false);
+          } else {
+            armWatchdog();
+          }
+        } catch (gateError) {
+          // The gate is advisory. A gate that throws must not become the outage.
+        }
+      })();
+    </script>
+
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

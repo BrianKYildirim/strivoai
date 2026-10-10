@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "phase": "04.1",
+  "toolingPass": true,
+  "createdUtc": "2026-08-01T09:36:00Z",
+  "authorization": ".planning/phases/04.1-update-strivo-costing-workbook-with-missing-costs-and-formul/04.1-LIVE-EXCEL-AUTHORIZATION.md",
+  "authoringBackend": {
+    "kind": "connected-excel-session",
+    "workbookTitle": "Strivo AI Final Costing Plan.xlsx",
+    "registrationVerified": true,
+    "baselineReadVerified": true,
+    "supportedTools": [
+      "read_sheets_metadata@1",
+      "read_ranges@1",
+      "write_range@1",
+      "update_workbook@1",
+      "copy_range_to@1",
+      "format_range@1",
+      "resize_range@1",
+      "read_range_image@1"
+    ]
+  },
+  "calculationRenderEngine": {
+    "kind": "microsoft-excel-live",
+    "formulaResultRead": "read_ranges@1",
+    "rangeRender": "read_range_image@1"
+  },
+  "baseline": {
+    "workbookPath": "docs/Strivo AI Final Costing Plan.xlsx",
+    "sha256": "46b7590872f99b06b255650b8fdeea749a8c4cea1af38d24b8366d37990552f4",
+    "lengthBytes": 56211,
+    "sheetOrder": ["Worst Case", "Mid Case", "Best Case"],
+    "metadataReadVerified": true,
+    "representativeFormulaStyleReadVerified": true,
+    "baselineRenderVerified": true
+  },
+  "metadata": {
+    "localOnly": true,
+    "commit": false,
+    "sessionExecutorIdPersisted": false
+  }
+}

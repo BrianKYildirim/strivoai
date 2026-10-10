@@ -1,0 +1,11 @@
+{
+  "id": "analysis-recruiting-1",
+  "user_id": "user-1",
+  "source_reference": "job-1",
+  "primary_score": 71,
+  "raw_response": {
+    "overallMatch": { "score": 71 },
+    "recruiterVerdict": "Likely screen with targeted keyword fixes.",
+    "criteria": []
+  }
+}

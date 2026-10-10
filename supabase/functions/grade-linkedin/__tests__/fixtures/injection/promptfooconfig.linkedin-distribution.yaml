@@ -1,0 +1,138 @@
+# Phase 04 · 04-06 · VER-03 — LinkedIn scoring DISTRIBUTION eval (live, NON-blocking).
+# Re-baselined in Phase 08.3 for the direct-100 plain-sum rubric: Headline 15 / About 15 /
+# Experience 45 / Search Alignment, Skills & Credentials 25 (no normalization denominator —
+# the server-owned total is the plain sum of section scores on a 0-100 scale).
+#
+# The LLM-behavioral half of VER-03. The deterministic half (the plain-sum MATH and
+# schema spread four profiles into four distinct bands) lives on-gate in
+# grade-linkedin/__tests__/distribution.test.ts + validation.test.ts. This suite proves
+# the OTHER half: against the DEPLOYED preview Haiku endpoint, does the MODEL actually
+# discriminate — do four qualitatively-different profiles earn four different bands
+# instead of the v4.0 ~52 pileup, and does a repeated run of the SAME profile converge?
+#
+# OFF-gate, real-Anthropic, COSTED. Like test:adversarial:linkedin it calls a deployed
+# endpoint and incurs real model spend, so it is kept OFF verify:baseline and OFF
+# .github/workflows/regression-gate.yml (scheduled / label-triggered / operator-run only).
+# It is invoked by `npm run test:adversarial:linkedin-distribution` and is NEVER a
+# blocking precondition of any deploy.
+#
+# Run against PREVIEW (repeat each profile to observe convergence; --repeat is the
+# same-profile stability probe):
+#   ANALYZE_URL=https://<preview-ref>.supabase.co/functions/v1/grade-linkedin \
+#   TEST_JWT=... \
+#   npx promptfoo eval --config supabase/functions/grade-linkedin/__tests__/fixtures/injection/promptfooconfig.linkedin-distribution.yaml --repeat 3
+#
+# Expected outcome (LINKEDIN_SCORE_BANDS on the direct 0-100 total): weak < 50,
+# average in 50-69, strong in 70-84, exceptional >= 85,
+# every fixture outside a pure ~52 clustering, and the repeated runs of each profile
+# stay within their band (convergence within tolerance). ANALYZE_URL and TEST_JWT are
+# injected from the operator/CI vault at invocation time and are NEVER committed.
+
+description: "grade-linkedin scoring distribution eval (VER-03, off-gate, real-AI, preview Haiku)"
+
+providers:
+  - id: http
+    config:
+      url: "{{env.ANALYZE_URL}}"
+      method: POST
+      headers:
+        Authorization: "Bearer {{env.TEST_JWT}}"
+        Content-Type: "application/json"
+      body:
+        profileContent: "{{profileContent}}"
+      transformResponse: "json"
+
+prompts:
+  - file://./noop.txt # http provider does not use prompts; placeholder satisfies schema
+
+# Shared assertion: extract the server-computed headline total and assert it lands in
+# the band expected for this fixture, and is not stuck in the ~52 clustering window
+# unless the fixture legitimately belongs to the average band.
+defaultTest:
+  assert:
+    - type: is-json
+      metric: valid_json_response
+    - type: javascript
+      metric: lands_in_expected_band
+      value: |
+        try {
+          const body = typeof output === 'string' ? JSON.parse(output) : output;
+          // The migrated grader returns the server-computed total on rawScore; fall back
+          // to other common total fields so the probe is robust to the response envelope.
+          const total = Number(
+            body?.rawScore ?? body?.overallScore ?? body?.score ?? body?.grade?.rawScore
+          );
+          if (!Number.isFinite(total)) {
+            return { pass: false, score: 0, reason: 'no numeric headline total in response' };
+          }
+          const min = Number(context.vars.expectedBandMin);
+          const max = Number(context.vars.expectedBandMax);
+          const inBand = total >= min && total <= max;
+          // Anti-clustering: a NON-average fixture must sit outside the 48-58 ~52 window.
+          const isAverageFixture = context.vars.band === 'average';
+          const outsideCluster = isAverageFixture || total < 48 || total > 58;
+          return {
+            pass: inBand && outsideCluster,
+            score: inBand && outsideCluster ? 1 : 0,
+            reason: `total=${total} band=${context.vars.band} expected[${min}-${max}] inBand=${inBand} outsideCluster=${outsideCluster}`,
+          };
+        } catch (e) {
+          return { pass: false, score: 0, reason: 'assertion threw: ' + String(e) };
+        }
+
+tests:
+  - description: "weak profile → weak band (< 50), outside the ~52 cluster"
+    vars:
+      band: "weak"
+      expectedBandMin: 0
+      expectedBandMax: 49
+      profileContent: |
+        Name: Jordan Lee
+        Headline: Looking for opportunities
+        About: (none)
+        Experience: Team Member — Local Shop (2019-2021). Responsible for daily tasks.
+        Education: High school diploma.
+        Skills: Communication.
+        No projects, no certifications, no photo, no custom URL, no recommendations.
+
+  - description: "average profile → average band (50-69)"
+    vars:
+      band: "average"
+      expectedBandMin: 50
+      expectedBandMax: 69
+      profileContent: |
+        Name: Priya Nair
+        Headline: Marketing Coordinator at Midsize Co
+        About: Marketing coordinator with 3 years of experience in campaign support and content scheduling. Interested in growing into a marketing manager role.
+        Experience: Marketing Coordinator — Midsize Co (2021-present). Ran email campaigns, supported 2 product launches, grew newsletter list by 15%. Marketing Assistant — Startup (2019-2021).
+        Education: BA Communications, State University.
+        Skills: Email marketing, content, SEO basics, Canva, Google Analytics, social media, copywriting.
+        Some recommendations, profile photo present, no custom banner.
+
+  - description: "strong profile → strong band (70-84)"
+    vars:
+      band: "strong"
+      expectedBandMin: 70
+      expectedBandMax: 84
+      profileContent: |
+        Name: Marcus Chen
+        Headline: Senior Data Engineer | Streaming & Lakehouse | Spark · Kafka · dbt
+        About: Senior data engineer with 7 years building petabyte-scale streaming pipelines. Cut pipeline latency 40% and infra cost 25% across two orgs. Open to Staff roles.
+        Experience: Senior Data Engineer — BigTechCo (2020-present). Led a 4-engineer platform team; shipped a Kafka→Iceberg lakehouse serving 300+ analysts; reduced batch cost 25%. Data Engineer — Scaleup (2017-2020). Built the first real-time CDC pipeline; 99.95% uptime.
+        Education: BS Computer Science, Top University.
+        Skills: Spark, Kafka, dbt, Airflow, AWS, Python, SQL, Iceberg, Terraform, data modeling, streaming.
+        Certifications: AWS Solutions Architect. Profile photo, banner, custom URL, 6 recommendations, featured section.
+
+  - description: "exceptional profile → exceptional band (>= 85)"
+    vars:
+      band: "exceptional"
+      expectedBandMin: 85
+      expectedBandMax: 100
+      profileContent: |
+        Name: Dr. Amara Okafor
+        Headline: VP Engineering | Scaling AI Platforms 0→$100M ARR | Ex-FAANG | Keynote Speaker
+        About: VP of Engineering who scaled three AI platforms from prototype to $100M+ ARR. Built and led 120-person orgs across 4 countries. Reduced model-serving cost 60% while doubling throughput. Board advisor, published author, and conference keynote speaker. Selectively open to VP/CTO opportunities in applied AI.
+        Experience: VP Engineering — AIUnicorn (2019-present). Grew engineering 15→120; delivered the platform behind $100M ARR; cut inference cost 60%; 4 patents. Director of Engineering — FAANG (2014-2019). Led the ranking-infra org for a 1B-user product; 30% latency win. Multiple promotions.
+        Education: PhD Computer Science; BS with honors.
+        Skills: Distributed systems, ML infrastructure, org design, LLM serving, Kubernetes, Go, Python, leadership, strategy, hiring, public speaking, GTM partnership.
+        Certifications: Multiple. Complete profile: professional photo, branded banner, custom URL, featured talks, 20+ recommendations, awards, publications.

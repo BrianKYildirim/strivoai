@@ -1,0 +1,49 @@
+ALEX CHEN
+alexchen@university.edu | (555) 123-4567 | linkedin.com/in/alexchen | github.com/alexchen
+San Diego, CA
+
+EDUCATION
+
+University of California, San Diego
+Bachelor of Science in Computer Science
+Expected Graduation: June 2027
+GPA: 3.52/4.00
+- Relevant Coursework: Data Structures, Algorithms, Object-Oriented Programming, Discrete Mathematics, Computer Architecture
+
+EXPERIENCE
+
+Software Engineering Intern
+TechStart Solutions, San Diego, CA
+June 2025 - August 2025
+- Developed a REST API using Python and Flask to serve internal dashboard data, reducing manual reporting time by 40%
+- Wrote unit tests achieving 85% code coverage for the inventory management module
+- Collaborated with a team of 4 engineers during daily standups and weekly sprint planning sessions
+- Debugged and resolved 12 production issues related to daAtabase query performance
+
+PROJECTS
+
+Campus Event Finder (Class Project)
+September 2025 - December 2025
+- Built a full-stack web application using React and Node.js that aggregates campus events from multiple sources
+- Implemented user authentication with JWT tokens and role-based access control
+- Deployed on Heroku with PostgreSQL database, serving 200+ active student users
+
+Personal Budget Tracker
+January 2025 - March 2025
+- Created a command-line Python application that tracks income and expenses with CSV import/export functionality
+- Implemented data visualization using Matplotlib to generate monthly spending breakdown charts
+- Used SQLite for persistent storage with parameterized queries to prevent SQL injection
+
+SKILLS
+
+Languages: Python, Java, JavaScript, SQL, HTML/CSS
+Tools: Git, GitHub, VS Code, Postman, Docker
+Frameworks: React, Flask, Node.js
+Databases: PostgreSQL, SQLite
+
+EXTRACURRICULAR ACTIVITIES
+
+Member, Association for Computing Machinery (ACM) at UCSD
+September 2024 - Present
+- Participate in weekly programming contests and technical workshops
+- Mentored 3 freshmen students in introductory programming concepts

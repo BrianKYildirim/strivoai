@@ -1,0 +1,142 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Deploy-target selection is done by scripts/deploy.ps1 via an explicit
+#   supabase link --project-ref <ref>
+#   production    -> zjpjapgraoxdukdvpjes  (strivoai prod)
+#   staging/test  -> cimjltzovkahkqecpwgi  (strivoaipreview)
+# That explicit link is AUTHORITATIVE for which project is deployed to.
+# The project_id below is only the Supabase CLI default for LOCAL linking — it
+# does NOT determine the deploy target. (The old config.<env>.toml copy step was
+# removed; those redundant files hard-coded the prod project_id and were a footgun.)
+# ──────────────────────────────────────────────────────────────────────────────
+project_id = "zjpjapgraoxdukdvpjes"
+
+[functions.analyze-resume]
+verify_jwt = false
+
+[functions.submit-resume-analysis-job]
+verify_jwt = false
+
+[functions.get-analysis-job-status]
+verify_jwt = false
+
+[functions.process-resume-analysis-job]
+verify_jwt = false
+
+[functions.analyze-career]
+verify_jwt = false
+
+[functions.submit-career-analysis-job]
+verify_jwt = false
+
+[functions.process-career-analysis-job]
+verify_jwt = false
+
+[functions.grade-linkedin]
+verify_jwt = false
+
+[functions.extract-analysis-structure]
+verify_jwt = false
+
+# Internal (pg_cron) endpoint: authenticated by x-internal-job-secret, never a
+# user JWT. The gateway MUST NOT require a JWT or every reaper sweep 401s before
+# the function runs. (Was deployed with the default verify_jwt=true, which the
+# gateway enforced against the JWT-less cron POST.)
+[functions.reap-stale-analysis-runs]
+verify_jwt = false
+
+[functions.send-welcome-email]
+verify_jwt = false
+
+[functions.notify-upgrade-request]
+verify_jwt = false
+
+[functions.notify-upgrade-approved]
+verify_jwt = false
+
+[functions.notify-admin-activity]
+verify_jwt = false
+
+[functions.send-notification-email]
+verify_jwt = false
+
+[functions.ocr-pdf]
+verify_jwt = false
+
+# Application-level requireAuth owns the stable 401 envelope. The endpoint
+# returns only a short-lived encrypted correlation token after strict validation.
+[functions.begin-feature-run]
+verify_jwt = false
+
+[functions.send-feature-email]
+verify_jwt = false
+
+[functions.test-email]
+verify_jwt = true
+
+[functions.admin-delete-user]
+verify_jwt = false
+
+[functions.send-strivo-email]
+verify_jwt = false
+
+[functions.process-scheduled-emails]
+verify_jwt = false
+
+[functions.send-credits-exhausted-email]
+verify_jwt = false
+
+[functions.interview-prep-analyze]
+verify_jwt = false
+
+[functions.interview-prep-evaluate]
+verify_jwt = false
+
+[functions.recruiting-lens]
+verify_jwt = false
+
+# Gateway JWT verification is disabled so application-level requireAuth can
+# return the repository's stable 401 envelope. This endpoint is not anonymous.
+[functions.validate-document]
+verify_jwt = false
+
+# Gateway JWT verification is disabled because this endpoint is IDENTITY-OPTIONAL
+# BY DESIGN. A browser-capability or boot failure can happen before the user is
+# authenticated (D-08), and those are precisely the failures worth recording, so an
+# anonymous beacon must still be ingestable. `user_id` is derived server-side from a
+# verified Authorization header when one is present and is NULL otherwise; a
+# client-asserted `user_id` is never accepted (it is absent from ALLOWED_FIELDS).
+[functions.log-client-diagnostic]
+verify_jwt = false
+
+[functions.keep-warm]
+verify_jwt = false
+
+[functions.create-checkout-session]
+verify_jwt = false
+
+[functions.create-payment-intent]
+verify_jwt = false
+
+[functions.create-stripe-portal]
+verify_jwt = false
+
+[functions.cancel-subscription]
+verify_jwt = false
+
+[functions.renew-subscription]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.stripe-webhook-handler]
+verify_jwt = false
+
+[functions.reset-subscription-merits]
+verify_jwt = false
+
+[functions.admin-merit-metrics]
+verify_jwt = false
+
+[functions.check-merit-alerts]
+verify_jwt = false

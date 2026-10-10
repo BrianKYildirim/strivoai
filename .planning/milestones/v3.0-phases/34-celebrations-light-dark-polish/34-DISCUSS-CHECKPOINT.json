@@ -1,0 +1,37 @@
+{
+  "phase": "34",
+  "phase_name": "Celebrations Light/Dark Polish",
+  "areas_total": 4,
+  "areas_completed": 3,
+  "areas_remaining": ["Ambient effects"],
+  "decisions": {
+    "Theme strategy & light-mode look": {
+      "light_mode_direction": "Match other Strivo dashboard pages (bg-background / text-foreground / bg-card with subtle border).",
+      "dark_mode_direction": "Use semantic dark tokens (bg-background, bg-card) — drop literal bg-black so the page evolves with the system tokens.",
+      "page_role": "Reachable from elsewhere (nav/settings) in addition to post-signup — must read as a normal dashboard surface in both themes, not just as a one-time wow.",
+      "theme_honor": "Respect the user's current next-themes preference; no theme forcing on /celebrations."
+    },
+    "Brand accent palette": {
+      "hero_gradients": "Keep the 3 expressive moments — (a) 'unfair advantage' indigo→violet→blue headline, (b) 'strive for excellence' yellow→orange→amber, (c) user #count indigo→violet→blue — but each gets a deliberate light-mode variant that still reads on a light background.",
+      "cta_button": "Drop the indigo→purple CTA gradient. Use bg-primary / hover:bg-primary/90 to match standard Strivo buttons.",
+      "visualizer_bars": "bg-primary (was bg-indigo-400).",
+      "tile_icon_chip": "bg-primary/10 + text-primary (was bg-indigo-500/20 with text-white icons).",
+      "signature_heart": "Keep the red→pink SVG gradient as-is — small intentional warmth, theme-neutral."
+    },
+    "Card primitive adoption": {
+      "card_usage": "All three card-like surfaces (audio player, letter, 3 action tiles) migrate to the shadcn <Card> primitive from src/components/ui/card.tsx — fulfills CELEB-03.",
+      "action_tile_pattern": "Card wrapped in React Router <Link>; hover state via hover:bg-accent or shadow lift. No <Button> conversion.",
+      "letter_copy": "Lowercase / handwritten prose unchanged. Theme work only — colors map text-white/* → text-foreground / text-muted-foreground so WCAG AA holds in both themes.",
+      "spacing_rhythm": "Keep current per-section spacing (min-h-[80vh] hero, py-20 / pb-16, max-w-2xl letter, max-w-4xl what's-next). Don't force a generic dashboard container."
+    }
+  },
+  "deferred_ideas": [],
+  "canonical_refs": [
+    ".planning/ROADMAP.md",
+    ".planning/REQUIREMENTS.md",
+    "src/pages/Celebrations.tsx",
+    "src/components/ui/card.tsx",
+    "tailwind.config.ts",
+    "src/index.css"
+  ]
+}

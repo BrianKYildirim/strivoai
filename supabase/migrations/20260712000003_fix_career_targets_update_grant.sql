@@ -1,0 +1,85 @@
+-- Quick task 260712-msh · Migration C · CORRECTIVE — restore the client upsert path
+--
+-- THE BUG (CRITICAL — shipped broken in 20260712000001 section C)
+--   Migration A's tamper-resistance is CORRECT in MECHANISM (column-level GRANT/REVOKE
+--   is the only thing that gates COLUMNS; RLS gates ROWS) but its `GRANT UPDATE (...)`
+--   column list OMITTED user_id. All three client writers upsert with user_id present:
+--
+--     Onboarding.tsx  step 4 "Finish Setup"  -> upsert({ user_id, target_roles,
+--                        target_industries, professional_goal, professional_goal_set_at })
+--     useProfessionalGoal.ts saveGoal()      -> upsert({ user_id, professional_goal,
+--                                                        professional_goal_set_at })
+--     Profile.tsx     career-targets save    -> upsert({ user_id, target_industries,
+--                        target_roles, target_companies, location_preference, career_goals })
+--
+--   PostgREST implements `.upsert(..., { onConflict: 'user_id' })` with the
+--   merge-duplicates preference, which emits:
+--
+--     INSERT INTO career_targets (user_id, ...) VALUES (...)
+--     ON CONFLICT (user_id) DO UPDATE SET user_id = EXCLUDED.user_id, ...
+--
+--   That statement requires UPDATE(user_id). Postgres checks column privileges at
+--   EXECUTION START, not at conflict time — so the DO UPDATE arm's missing privilege
+--   aborts the statement even on the FRESH-INSERT path, where no conflict occurs at all.
+--   Every one of the three flows returned 403 / SQLSTATE 42501 permission denied
+--   (reproduced over real HTTP against Postgres 15 + PostgREST v12.2.3 with a
+--   role=authenticated JWT).
+--
+--   Blast radius: the professional goal could NEVER be saved. Because ProtectedRoute
+--   gates /dashboard on having a goal, the dashboard was permanently unreachable for
+--   EVERY user. Profile.tsx's career-targets save — a flow that worked fine before
+--   quick task 260712-msh — was a straight REGRESSION.
+--
+-- THE FIX
+--   Add user_id to the UPDATE column list. Nothing else.
+--
+-- WHY THIS DOES NOT REOPEN THE TAMPER HOLE (verified empirically, not reasoned)
+--   Tamper-resistance comes from what is ABSENT from the grant list, not from what is
+--   present. goal_readiness_score, goal_readiness_components, goal_readiness_computed_at
+--   and professional_goal_structured remain absent, so forging them still 403s with
+--   42501. And UPDATE(user_id) is NOT a row-hijack primitive: the pre-existing
+--   owner-scoped RLS policy (user_id = auth.uid(), unchanged by this migration) is what
+--   decides WHICH ROW you may touch, and it evaluates on both the USING (old row) and
+--   WITH CHECK (new row) side. A user still cannot read, write, or re-parent another
+--   user's row. The privilege granted here is exactly the one PostgREST needs to write
+--   user_id = EXCLUDED.user_id back onto YOUR OWN row — a self-assignment no-op.
+--
+-- WHY A NEW MIGRATION INSTEAD OF EDITING 20260712000001
+--   20260712000001 has already been applied to preview. Editing an applied migration
+--   does not re-run it, so the fix would silently never reach the database.
+--
+-- DO NOT "SIMPLIFY" THIS BACK TO A BLANKET `GRANT UPDATE ON public.career_targets`.
+--   That re-opens the forgeable-score hole this whole design exists to close. The column
+--   list is the security boundary. Widen it ONE column at a time, deliberately.
+--   _shared/goal-readiness-guard.test.ts fails closed on both mistakes: it asserts
+--   user_id IS in the effective UPDATE list, and that the trigger-owned columns are NOT.
+--
+-- ADDITIVE GUARANTEE
+--   * A single GRANT. Re-granting an already-held column privilege is a no-op, so this
+--     migration is fully idempotent and re-runnable.
+--   * No column is added, dropped, retyped or renamed. No RLS policy is touched.
+--   * No privilege is REVOKEd. No privilege is widened beyond user_id.
+--   * No rows are written.
+--
+-- ROLLBACK  (copy-paste inverse DDL — run top to bottom)
+-- ---------------------------------------------------------------------------
+--   BEGIN;
+--   -- Drops ONLY the column privilege this migration added, restoring the exact
+--   -- post-20260712000001 grant list. NOTE: this deliberately restores the BROKEN
+--   -- state (every client upsert of career_targets will 403 again, and /dashboard
+--   -- becomes unreachable). Roll back only together with 20260712000001/2.
+--   REVOKE UPDATE (user_id) ON public.career_targets FROM authenticated;
+--   COMMIT;
+-- ---------------------------------------------------------------------------
+
+
+-- The client-writable column list, now complete. Identical to 20260712000001 section C's
+-- GRANT UPDATE plus user_id — and identical to its GRANT INSERT list, which already
+-- (correctly) carried user_id. The EXCLUSIONS are the point: professional_goal_structured,
+-- goal_readiness_score, goal_readiness_components and goal_readiness_computed_at are
+-- TRIGGER-OWNED, are written only by the SECURITY DEFINER scorer (which runs as the table
+-- owner and is unaffected by these grants), and must NEVER appear below.
+GRANT UPDATE (user_id, target_roles, target_industries, target_companies,
+              location_preference, career_goals, professional_goal,
+              professional_goal_set_at)
+  ON public.career_targets TO authenticated;

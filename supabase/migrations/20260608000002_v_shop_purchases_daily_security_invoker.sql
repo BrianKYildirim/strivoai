@@ -1,0 +1,35 @@
+-- DB-05 (Plan 08-03): flip the analytics view v_shop_purchases_daily to security_invoker.
+--
+-- Symptom (advisor: security_definer_view, ERROR):
+--   public.v_shop_purchases_daily is a SECURITY DEFINER view. It runs with the
+--   privileges of the view OWNER (definer), bypassing the querying user's RLS.
+--   Splinter lint 0010 flags this as a least-privilege risk.
+--
+-- Root cause:
+--   Views default to security_definer in Postgres. The analytics views were created
+--   without WITH (security_invoker = true), so they evaluate underlying-table access
+--   as the definer, not the caller.
+--
+-- Zero-change rationale (read-map, Plan 08-03 Task 1):
+--   The ONLY runtime caller of this view is supabase/functions/admin-merit-metrics/index.ts,
+--   which reads it via getServiceClient() (service_role). service_role BYPASSES RLS
+--   regardless of the view's invoker/definer mode, so flipping to security_invoker is
+--   INVISIBLE to that caller. No src/** reads this view at runtime (the only src/ hit is
+--   the generated src/integrations/supabase/types.ts type declaration, not a runtime read).
+--   Therefore the flip changes no row any live caller sees -> provably zero observable change.
+--
+-- Why ALTER VIEW (not re-CREATE):
+--   ALTER VIEW ... SET changes only the security_invoker attribute and does not re-define
+--   the view body, avoiding the May-2025 dashboard "missing security_invoker flag" bug and
+--   leaving any dependents untouched. Mirrors the live analog
+--   20260525000001_phase42_layer1_users_career_targets.sql:168-170 (cohort_peers,
+--   already security_invoker).
+--
+-- Re-runnability (NFR-01): ALTER VIEW ... SET is idempotent (safe to re-apply).
+
+-- ── FORWARD ───────────────────────────────────────────────────────────────────
+ALTER VIEW public.v_shop_purchases_daily SET (security_invoker = true);
+
+-- ── ROLLBACK (DB-06) ──────────────────────────────────────────────────────────
+-- Restores the captured prior state (security_definer, i.e. invoker OFF):
+--   ALTER VIEW public.v_shop_purchases_daily SET (security_invoker = false);

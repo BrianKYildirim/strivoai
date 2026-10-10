@@ -1,0 +1,7 @@
+=== DIFFSTAT vs HEAD ===
+=== STATUS ===
+=== TESTFILE LAST COMMIT ===
+6aed0ba feat: Implement history persistence for resume analysis and LinkedIn grading
+=== INDEX LAST COMMIT ===
+a59f689 feat(42-13): T3 — cutover 4 edge fns to readWithArchiveFallback
+=== END ===
