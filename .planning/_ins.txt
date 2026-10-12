@@ -1,7 +1,0 @@
-501:          .insert({
-535:            .insert(rows);
-20: *       → INSERT interview_quizzes (9 intake cols + readiness_score + tier)
-203:        .from('interview_quizzes')
-227:        .from('interview_quizzes')
-498:        // 12. Persist interview_quizzes row (all 9 intake cols + readiness_score + tier).
-500:          .from('interview_quizzes')

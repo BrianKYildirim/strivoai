@@ -56,8 +56,6 @@ npm run dev
 
 # Other scripts:
 
-
-
 **Use Claude Code**
 
 You can also work with this repo in Claude Code. Recommended setup:
@@ -97,7 +95,7 @@ names, consumers, required/optional status, and which surface sets each — live
 
 At a high level:
 
-* **Frontend (`.env` / `.env.local`)** — public `VITE_*` build vars (Supabase URL +
+* **Frontend (`.env`** **/** **`.env.local`)** — public `VITE_*` build vars (Supabase URL +
   publishable/anon key, Stripe publishable key, optional feature flags).
 * **Supabase Edge Function secrets** — backend-only secrets (Supabase service role,
   Anthropic, internal job secret, Resend, Stripe secret + webhook + price IDs, CORS
@@ -137,7 +135,7 @@ parameterized by target environment:
 `deploy-staging.ps1` / `deploy-production.ps1` are thin shims that forward into
 `deploy.ps1` with the matching `-Env`.
 
-The deploy target is selected by an **explicit `supabase link --project-ref <ref>`**
+The deploy target is selected by an **explicit** **`supabase link --project-ref <ref>`**
 inside `scripts/deploy.ps1` (the single source of truth for which project is targeted)
 — it is NOT driven by copying or overwriting the `supabase/config.toml` project id
 (that earlier footgun was intentionally removed). Before any project is linked or any
