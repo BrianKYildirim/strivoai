@@ -1,0 +1,101 @@
+    if (variant === 'elite_taste') {
+      const firstOfMonth = firstOfMonthUtcIso();
+      const { count, error: monthlyErr } = await supabase
+        .from('interview_quizzes')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('tier', 'elite_taste')
+        .gte('created_at', firstOfMonth);
+      if (monthlyErr) {
+        log.error('monthly-taste-query-error', { error: monthlyErr.message });
+      }
+      if ((count ?? 0) >= 1) {
+        return jsonResponse(
+          {
+            error: 'monthly_taste_used',
+            message: 'Your monthly Elite quiz is used. Resets on the 1st of next month.',
+          },
+          429,
+        );
+      }
+    }
+
+    // 8b. Elite daily cap (3/day — D-04: filter by tier='elite', not mode='quiz').
+    let todayQuizCount = 0;
+    if (variant === 'elite') {
+      const midnight = todayMidnightUtc();
+      const { count, error: capErr } = await supabase
+        .from('interview_quizzes')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('tier', 'elite')
+        .gte('created_at', midnight);
+      if (capErr) {
+        log.error('daily-cap-query-error', { error: capErr.message });
+      } else {
+        todayQuizCount = count ?? 0;
+      }
+      if (todayQuizCount >= 3) {
+        return jsonResponse(
+          {
+            error: 'daily_cap_reached',
+            message: "You've hit today's cap. Reset at midnight UTC.",
+          },
+          429,
+        );
+      }
+    }
+
+    // 9. Auto-fetch resume (D-01, D-02 — BEFORE Merit deduction, T-19-10).
+    const { data: resumeRow, error: resumeErr } = await supabase
+      .from('resumes')
+      .select('id, file_path, analyzed_at, created_at, file_name')
+      .eq('user_id', userId)
+      .not('analyzed_at', 'is', null)
+      .order('analyzed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (resumeErr) {
+      log.error('resume-fetch-error', { error: resumeErr.message });
+      return jsonResponse(
+        { error: 'resume_fetch_failed', message: 'Failed to fetch your resume. Please try again.' },
+        500,
+      );
+    }
+
+    if (!resumeRow) {
+      return jsonResponse(
+        { error: 'no_resume', message: 'Upload and analyze a resume first to generate interview prep.' },
+        400,
+      );
+    }
+
+    // Download PDF from Storage.
+    const { data: pdfData, error: dlErr } = await supabase
+      .storage
+      .from('resumes')
+      .download(resumeRow.file_path);
+
+    if (dlErr || !pdfData) {
+      log.error('pdf-download-error', { error: dlErr?.message, filePath: resumeRow.file_path });
+      return jsonResponse(
+        { error: 'resume_download_failed', message: 'Could not download your resume PDF. Please re-upload.' },
+        500,
+      );
+    }
+
+    const resumeText = await extractPDFText(await pdfData.arrayBuffer());
+    log.info('resume-extracted', {
+      resumeLen: resumeText.length,
+      resumeId: (resumeRow as { id?: string }).id,
+      filePath: (resumeRow as { file_path?: string }).file_path,
+      fileName: (resumeRow as { file_name?: string }).file_name,
+      analyzedAt: (resumeRow as { analyzed_at?: string }).analyzed_at,
+      createdAt: (resumeRow as { created_at?: string }).created_at,
+    });
+
+    // 10. Sanitize user-supplied content before prompt ingestion (T-23-PROMPT-01).
+    const sanitizedJD = sanitizeUserContent(job_description, 'interview-prep-analyze', log);
+    const sanitizedBg = background_context
+      ? sanitizeUserContent(background_context, 'interview-prep-analyze', log)

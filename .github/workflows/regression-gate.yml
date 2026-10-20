@@ -1,0 +1,93 @@
+# Regression Gate — the blocking PR gate (D-06/D-08/D-09, extended by VER-01).
+#
+# Runs `npm run verify:baseline` — THE SAME COMMAND the deploy gate runs (scripts/deploy.ps1)
+# — on every PR to main/staging. That identity is the point: TESTING-STRATEGY.md's contract is
+# that local and CI run the *same* command so they cannot drift apart. Before 09-09 this
+# workflow re-implemented the gate as separate hand-listed steps, which is precisely how a CI
+# gate silently ends up weaker than the deploy gate it is supposed to mirror.
+#
+# The seven layers (package.json -> scripts.verify:baseline):
+#   lint -> type-check -> vitest -> deno offline -> deno REMOTE DATABASE -> Playwright -> build
+#
+# The YAML alone is NOT blocking — the blocking teeth come from a GitHub branch-protection
+# "Required status check" pointing at the `gate` job (operator action; see TESTING-STRATEGY.md
+# "Branch protection"). The adversarial / injection suite is deliberately OFF this gate (D-09 —
+# it calls real Anthropic and incurs cost; scheduled or label-triggered only). This workflow
+# contains NO production deploy step.
+#
+# All secret values are ${{ secrets.* }} references — never literals (threat T-05-01). The
+# VITE_* build-time vars are mapped from the TEST-project secrets so BOTH the Playwright
+# preview build AND the final `npm run build` lane target the TEST project, NOT production
+# (RESEARCH Pitfall 5 / threat T-05-05).
+#
+# DENO_TEST_SUPABASE_REMOTE is deliberately NOT set at the job level. Each lane sets it itself
+# via cross-env (test:edge => 0, test:edge:remote => 1). A hardcoded job-level value is exactly
+# the silent-skip footgun the remote lane's fail-loud preflight exists to catch.
+name: Regression Gate
+
+on:
+  pull_request:
+    branches: [main, staging]
+  workflow_dispatch:
+
+# Least-privilege token (threat T-05-02): this gate only reads the checked-out code.
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install Playwright browser matrix
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: verify:baseline (lint, type-check, vitest, deno offline, deno REMOTE DB, Playwright, build)
+        run: npm run verify:baseline
+        env:
+          # Build-time VITE_* — baked into `npm run build && npm run preview` (Playwright) and
+          # into the final `build` lane, so both target the TEST project, NOT production.
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_TEST_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_TEST_ANON_KEY }}
+          VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_TEST_PUBLISHABLE_KEY }}
+          # Node-side runtime secrets the global-setup seed + the E2E specs read.
+          SUPABASE_TEST_URL: ${{ secrets.SUPABASE_TEST_URL }}
+          SUPABASE_TEST_ANON_KEY: ${{ secrets.SUPABASE_TEST_ANON_KEY }}
+          SUPABASE_TEST_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_TEST_SERVICE_ROLE_KEY }}
+          STRIPE_TEST_PUBLISHABLE_KEY: ${{ secrets.STRIPE_TEST_PUBLISHABLE_KEY }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          # The REMOTE DATABASE lane (D-06). staging == test == preview: ONE non-prod project
+          # (cimjltzovkahkqecpwgi), so the long-standing SUPABASE_TEST_* secrets already point
+          # at exactly the project this lane requires. The dedicated *_STAGING names are
+          # honored FIRST if they are ever added, so nothing has to change here when they are.
+          # No new secret is required for this gate to go green.
+          #
+          # Safety is structural, not clerical: requireRemoteConfig() REJECTS the production
+          # project ref outright (this lane writes rows), so a mis-set secret fails the lane
+          # loudly instead of writing test rows to production.
+          SUPABASE_URL_STAGING: ${{ secrets.SUPABASE_URL_STAGING || secrets.SUPABASE_TEST_URL }}
+          SUPABASE_SERVICE_ROLE_KEY_STAGING: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_STAGING || secrets.SUPABASE_TEST_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY_STAGING: ${{ secrets.SUPABASE_ANON_KEY_STAGING || secrets.SUPABASE_TEST_ANON_KEY }}
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/

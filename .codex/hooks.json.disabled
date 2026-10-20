@@ -1,0 +1,98 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd.exe /c C:\\Projects\\strive-ai-hired\\.codex\\hooks\\gsd-run-prompt-guard.cmd",
+            "timeout": 20
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd.exe /c C:\\Projects\\strive-ai-hired\\.codex\\hooks\\gsd-run-read-guard.cmd",
+            "timeout": 20
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd.exe /c C:\\Projects\\strive-ai-hired\\.codex\\hooks\\gsd-run-workflow-guard.cmd",
+            "timeout": 20
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd.exe /c C:\\Projects\\strive-ai-hired\\.codex\\hooks\\gsd-run-validate-commit.cmd",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|Edit|Write|MultiEdit|Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd.exe /c C:\\Projects\\strive-ai-hired\\.codex\\hooks\\gsd-run-context-monitor.cmd",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd.exe /c C:\\Projects\\strive-ai-hired\\.codex\\hooks\\gsd-run-phase-boundary.cmd",
+            "timeout": 20
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd.exe /c C:\\Projects\\strive-ai-hired\\.codex\\hooks\\gsd-run-read-injection-scanner.cmd",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd.exe /c C:\\Projects\\strive-ai-hired\\.codex\\hooks\\gsd-run-check-update.cmd",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd.exe /c C:\\Projects\\strive-ai-hired\\.codex\\hooks\\gsd-run-session-state.cmd",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

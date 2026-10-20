@@ -1,0 +1,29 @@
+{
+  "phase": "04.1",
+  "candidatePath": "docs/Strivo AI Final Costing Plan.xlsx",
+  "finalPath": "docs/Strivo AI Final Costing Plan.xlsx",
+  "liveConnectedWorkbook": true,
+  "userSaveGate": true,
+  "userSaveConfirmed": true,
+  "authoringBackend": "Microsoft Excel connected session",
+  "sheetOrder": ["Worst Case", "Mid Case", "Best Case", "Sources & Inputs"],
+  "baseline": {
+    "sha256": "46b7590872f99b06b255650b8fdeea749a8c4cea1af38d24b8366d37990552f4",
+    "lengthBytes": 56211
+  },
+  "savedCandidate": {
+    "sha256": "2d03ee278aca5d180e195af68de23eddc7d9d8d32c33a7338bd2cb7be09da7c5",
+    "lengthBytes": 104101,
+    "excelLockAbsent": true
+  },
+  "verification": {
+    "quick": "pass",
+    "oracle": "pass",
+    "render": "pass",
+    "security": "pass",
+    "full": "pass",
+    "formulaParity": true,
+    "formulaErrors": 0,
+    "independentSensitivityChecks": 45
+  }
+}

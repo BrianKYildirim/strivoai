@@ -1,0 +1,64 @@
+# Milestones
+
+## v5.0 platform-trust-reliability-intelligence (Shipped: 2026-07-19)
+
+**Phases completed:** 12 phases, 67 plans, 132 tasks
+
+**Key accomplishments:**
+
+- **Cross-origin & error-contract foundation (Phase 1):** centralized CORS onto one env-driven `ALLOWED_ORIGINS` allowlist across all 21 active Edge Functions (origin reflection + `Vary: Origin`, fail-closed for unapproved origins, no credential-bearing wildcard), added `withCors`/`jsonError` so 4xx/5xx keep readable CORS bodies, and closed the confirmed `www.strivoai.net` production outage — apex + www verified live, guarded by a table-driven test + a static 21-function drift guard in `verify:baseline`.
+- **Security audit & remediation (Phase 2):** closed deferred SEC-01..10 and ran a full 17-domain frontend + Edge audit; remediated 4 HIGH money-path/IDOR findings with evidence (Merit idempotency-key forwarding, `grade-linkedin`/`analyze-resume`/`analyze-career` refund-after-save, an `analyze-resume` owner-scope IDOR, Paddle webhook replay-window hardening), each locked by a RED→GREEN regression guard, with the v4.0 security-advisor floor (15) held — zero DB weakening.
+- **Shared analysis-lifecycle substrate + feature migrations (Phases 3–6):** shipped one persistent, idempotent, Merit-safe 11-state analysis lifecycle (`create_or_recover`/`transition` CAS RPCs, settle-on-saved, refund-exactly-once, transient-only bounded retry, strict no-masking output validation, structured error taxonomy, `useAnalysisRun` recovery hook) and wired the previously-unwired 4-arg idempotent `check_and_deduct_merits` end-to-end; migrated all five features onto it in ascending blast radius (Recruiting Lens + LinkedIn → Resume + Onboarding → Career Compass), killing the Onboarding "Taking Longer" hang and rebuilding LinkedIn scoring into a deterministic server-computed evidence-backed rubric (no ~52 clustering).
+- **Dashboard intelligence (Phase 7):** replaced Live Career Profile → Recruiter First Impression (deterministic 5-state recruiter response) and Activity Stream → Profile Alignment, deleted Progress & Achievements, and fixed the final section order — every section derived only from stored analysis data (no on-load AI calls, no fabricated scores), with Free/Elite depth and honest no-data empty states, and all protected areas left untouched.
+- **Paddle retirement (Phase 8):** cleared the subscription-expiration gate with two-source evidence (prod app-state + operator Paddle-dashboard, both zero active/future-dated), then removed Paddle end-to-end — repo surface, preview + production schema/columns/functions, the `paddle-webhook` function, env config, and types — behind a permanent `no-paddle-live-surface` guard, preserving required billing history.
+- **Final verification & evidence report (Phase 9):** extended `verify:baseline` to a seven-layer gate (lint, type-check, vitest, offline-deno, remote-DB, Playwright, build), turned the machine-enforced VER-02 coverage registry green at 125/125 cells, completed Free + Elite real-account testing on production (PII guard green), and produced the 14-item evidence-based milestone report with its own completeness guard — operator sign-off recorded 2026-07-19.
+
+**Timeline:** 2026-06-25 → 2026-07-19 (~24 days) · 493 commits · lifecycle substrate + 5 feature migrations · security advisor floor held at 15 · Paddle fully retired (repo + preview + prod).
+
+**Outcome:** 41/41 v5.0 requirements satisfied; VER-01/02/04/05 closed on evidence (seven-layer gate + real deploys, 125/125 coverage registry, production Free+Elite pass, 14-item report). Two deliberate production operational states recorded honestly in report item 14: Career Compass ships **dormant** on production (Flip-5 abort → `/gsd-debug` `elite-cc-mixed-format`), and `MERIT_SYSTEM_ENABLED` is **ON** by operator decision (`sha256('true')`, correcting the plan's original D-03 OFF assumption; open follow-up verification pass). Neither is a requirement shortfall.
+
+**Known deferred items at close:** 3 open debug sessions acknowledged and deferred (`elite-cc-mixed-format` — Career Compass Elite mixed-format, verifying; `queue-path-tier-downgrade` — fix-implemented; `stripe-checkout-key-mismatch` — resolved pending operator Vercel redeploy). Open operator/residual follow-ups: SEC-02-08-CRON (prod cron jobs point at the preview functions host), R-06-01 (internal-worker Career Compass processes all tiers at `free`), real LinkedIn PII in git history at commit `21925c88` (synthetic at HEAD; purge is an operator decision), and the Career Compass / `MERIT_SYSTEM_ENABLED` follow-ups above. See `.planning/STATE.md` → Deferred Items / RESIDUAL-REGISTER and the VER-05 report item 14. Carried from v4.0 (non-blocking): Nyquist VALIDATION sign-off for Phases 04/05.
+
+---
+
+## v4.0 Codebase Hardening (Shipped: 2026-06-25)
+
+**Phases completed:** 10 phases, 53 plans, 106 tasks
+
+**Key accomplishments:**
+
+- Made the vitest + deno suites deterministic — guarded the OutcomeOverdueBanner async effect, shipped a reusable chainable Supabase mock factory + an unhandled-rejection-surfacing test-setup hook, and reconciled 3 stale tier-config Pro-timeout assertions to the deployed Pro→Elite collapse with zero source change.
+- Stood up the Wave-0 test scaffolds: installed @playwright/test + Chromium, wrote a secret-free playwright.config.ts driving a local vite preview on :8080 (D-03), pinned the preview port, defined a single-source-of-truth offline `deno task test:ci` allowlist (live-Supabase _tests/test-04..06 unconditionally excluded), and added the `verify:baseline` wrapper chaining vitest + deno-offline + Playwright.
+- Authored the 3 critical-flow Playwright E2E specs plus the service-role Supabase test-user seed and login storageState fixture against the LIVE Supabase TEST project + Stripe test mode (only Anthropic stubbed). Flow 1 (auth/session) and the Stripe reconcile assertion are GREEN live; Flow 2 (resume) and the Stripe clientSecret/iframe assertions are BLOCKED by a single TEST-project edge-function CORS precondition (`APP_URL` ≠ the localhost preview origin) that is outside this plan's authority to change.
+- Landed the TEST-01 strategy artifact — a repo-root `TESTING-STRATEGY.md` documenting the 4 test layers, the D-05 critical-path-required/global-advisory coverage philosophy, the `verify:baseline` blocking gate (D-06/D-08/D-09), the 8 validation checkpoints, an empty-at-baseline quarantine register with the owner+expiry convention (D-07), the Pro→Elite tier-config reconciliation record, and branch-protection required-check instructions — superseding the stale `.planning/codebase/TESTING.md`; added a CLAUDE.md pointer; and extended the promptfoo injection fixtures from 13 to 20 classes (TEST-07), kept off the per-PR gate (D-09).- Re-established canonical-prod database ground truth (zjpjapgraoxdukdvpjes) via an operator-gated read-only re-pull, proving the Phase-3 Source-C catalog was preview-sourced; re-derived DB-02 against low-traffic true prod (0 confirmed-safe), reconciled saved_jobs absent without a drop, and documented the usage_tracking/can_perform_ai_action cluster GATED — zero DDL, zero code change.
+- Confirmed preview `cimjltzovkahkqecpwgi` is un-paused and ALREADY at repo HEAD (76 migrations, drift = 0, a verified no-op sync), read-only-confirmed its structure MATCHES canonical prod across every DB-05 object class (migrations / tables / RLS on the 4 targets / pg_proc on the 2 functions / the 73-lint security advisor set — ALL MATCH), and established the 4-step preview->prod HARD GATE for Plans 08-03..05 — zero DDL, zero writes to preview or prod, zero code change.
+- Authored, applied (preview->prod gate), and verified 8 forward+rollback migrations for the DB-05 provably-zero-change tier -- 4 analytics views flipped to `security_invoker`, `ts_to_utc_date` search_path pinned with `= ''`, and explicit-deny policies on the 3 service-role-only `rls_enabled_no_policy` tables. `get_advisors(security)` dropped 73->65 lints (-8) IDENTICALLY on preview AND prod (gate validated), with read-map + service_role-bypass proving zero access regression and a faithful rollback per file. `increment_rate_limit`, `linkedin_grades`, and the x60 EXECUTE revokes are DEFERRED to Plans 08-04/08-05.
+- Authored, corrected (pre-apply gate caught an aborting verification predicate), applied (preview->prod gate, operator-applied to prod), and verified 2 forward+rollback migrations for the D-03 grant-altering DB-05 tier -- DROP the over-permissive `linkedin_grades` "Anyone can view" SELECT (leaving the pre-existing owner-scoped policy as the sole reader) and pin `increment_rate_limit` search_path with `= public`. `get_advisors(security)` dropped 65->64 (-1) IDENTICALLY on preview AND prod; `function_search_path_mutable` reached 0 DB-wide; a SELECT-as-role probe proved owner=9 rows preserved / non-owner=0 denied, and an `increment_rate_limit` RPC probe returned `1` (no 500), proving `= public` resolves the unqualified `rate_limit_counters` ref.
+- Read-mapped the x60 `_security_definer_function_executable` EXECUTE grants per-function, authored forward+rollback REVOKE migrations for the provably-unused subset, and applied them preview->prod — but the preview gate CAUGHT that `REVOKE ... FROM anon/authenticated` was an effective no-op (a blanket `PUBLIC` EXECUTE grant in `proacl` kept anon/authenticated executable; the advisor uses `has_function_privilege`, which the original `role_routine_grants` DO-block was blind to). Corrected to `REVOKE ... FROM PUBLIC, anon` on all 30 + `FROM authenticated` on the 19 unused, with `has_function_privilege` verification. Result: `get_advisors(security)` 64 -> 15 (-49) IDENTICAL preview/prod; `anon_security_definer_function_executable` 30 -> 0; `authenticated_security_definer_function_executable` 30 -> 11 (19 revoked / 11 intentional KEEP incl. `can_perform_ai_action`). DB-05 is COMPLETE (73 -> 15 phase-wide; every remaining lint dispositioned); perf-class routed to Phase 9; zero app-code change across all of Phase 8.
+- Eliminated the analyze-resume cross-boundary double-parse — each parallel call's raw buffer now hits `parseAndValidateCall` once (in the retry loop) and the validated data is carried to a new `mergeValidated` entry instead of re-fed as raw text to the merger; the merged grading_data schema is byte-identical and proven by test:edge (704) + verify:baseline green.
+- One parameterized `getLatestResume({ userId, columns, terminal, orderBy })` accessor DRYs the four genuinely-identical latest-`resumes`-row reads (Profile, SkillsGap ×2, CareerCompass) while every divergent/list query stays byte-identical — verify:baseline green after each swap.
+
+**Timeline:** 2026-06-10 → 2026-06-25 (~15 days) · 300 commits · 15 reversible DB migrations · security advisor 73→15 · deno edge tests 284→704 · npm audit 32→20 (0 critical).
+
+**Outcome:** 42/42 requirements satisfied, cross-phase integration PASS (5/5 business-critical flows intact), zero-functional-change constraint held across all 10 phases. See `.planning/milestones/v4.0-MILESTONE-AUDIT.md`.
+
+**Known deferred items at close:** Nyquist VALIDATION sign-off for Phases 04 + 05 (non-blocking) and the R-03 flaky `AnalysisHistory.interviewPrep` test; the 13 quick-task "missing" flags are a `<slug>-SUMMARY.md` naming false-positive (artifacts present, history preserved). See `.planning/STATE.md` → Milestone Close Dispositions.
+
+---
+
+## v3.0 analysis-persistence-merit-fixes-pricing-ux-feature-output-parity (Shipped: 2026-06-09)
+
+**Phases completed:** 15 phases, 79 plans, 125 tasks
+
+**Key accomplishments:**
+
+- Hardened the Merit economy: Free moved to 10/month, idempotent deductions/refunds landed, and Stripe shop balance reconciliation/webhook idempotency were verified.
+- Repaired pricing, checkout, billing, and visual polish flows, including `/pricing`, `/settings/billing`, Celebrations theme parity, and subscription upgrade smoke.
+- Closed cross-feature context and history parity so Resume, LinkedIn, Career Compass, Recruiting Lens, and gated Interview Prep history paths have coherent persistence/routing behavior.
+- Shipped active feature output/cache parity across Resume Analysis, LinkedIn Grader, Career Compass, and Recruiting Lens, including saved Recruiting Lens jobs and defensive old-cache rendering.
+- Kept the Phase 42 lean-intelligence database foundation in v3.0 and verified users/targets, versioning, behavior, outcomes, lifecycle, archive, and cache substrate work.
+- Gated Interview Prep safely on production, deferred Phase 41 IPC/cache requirements to the future Interview Prep milestone, and replaced obsolete Phase 50 extraction behavior with the Phase 51 cost-optimized parser-first path.
+
+**Known deferred items at close:** 21 acknowledged open artifacts; see `.planning/STATE.md` Deferred Items.
+
+---

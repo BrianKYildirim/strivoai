@@ -1,0 +1,155 @@
+---
+phase: 09-final-verification-milestone-report
+plan: 02
+subsystem: security/testing
+tags: [pii, d-15, ver-04, guard, fixtures, verify-baseline]
+requires: []
+provides:
+  - phase9-pii-guard (blocking gate over Phase 9 evidence + fixtures)
+  - 09-FIXTURE-PROVENANCE.md (precondition for plans 09-10 and 09-11)
+  - synthetic Profile.pdf (the only permitted LinkedIn-grader input)
+affects:
+  - plan 09-11 (must append its test-account emails + run ids to the guard allowlists)
+  - plan 09-10 (live smokes must use only enrolled fixtures)
+  - VER-05 report item 14 (two residual risks handed off)
+tech-stack:
+  added: []           # no npm dependency added; package.json byte-unchanged
+  patterns:
+    - vitest static-source guard (node:fs from process.cwd(), auto-discovered)
+    - allowlist-stripped-before-scanning (Phase 2 escape-valve precedent)
+    - byte-transparency invariant for binary fixtures
+key-files:
+  created:
+    - src/test/security/phase9-pii-guard.test.ts
+    - scripts/test-resumes/generate-synthetic-linkedin-pdf.mjs
+    - .planning/phases/09-final-verification-milestone-report/09-FIXTURE-PROVENANCE.md
+  modified:
+    - scripts/test-resumes/Profile.pdf (REPLACED — real profile -> synthetic)
+    - src/lib/__tests__/profile-pdf-reconstruct.test.ts
+    - src/lib/__tests__/extract-pdf-text-empty-worker-fallback.test.ts
+decisions:
+  - Reserved-domain (RFC 2606) addresses are non-PII by construction and are stripped before the email sweep
+  - Binary fixtures must be byte-transparent (uncompressed) or the guard cannot vet them — compressed streams fail the gate
+  - The real profile is NOT purged from git history in this plan (operator decision, blast radius) — handed to report item 14
+metrics:
+  duration: ~80min
+  tasks: 2
+  files: 6
+  completed: 2026-07-11
+---
+
+# Phase 9 Plan 02: Phase 9 PII Guard + Fixture Provenance Summary
+
+D-15 is now enforced rather than intended: a vitest guard makes real-user PII, un-declared UUIDs, and secret-shaped values in Phase 9 evidence or test fixtures a RED `verify:baseline` gate — and the fixture audit it mandated found that `scripts/test-resumes/Profile.pdf` was a **real person's LinkedIn profile**, not a fixture.
+
+## The headline finding (RESEARCH.md Open Question 3, answered)
+
+**`scripts/test-resumes/Profile.pdf` was NOT synthetic.** It was a genuine LinkedIn "Save to PDF" export (`/Author (LinkedIn)`, `/Producer (Apache FOP 2.3)`) of a real, identifiable individual — almost certainly the repository owner. It carried a real full name, a real routable personal email, a real mobile number, real employers with real tenures, and a vanity URL that resolves to a live profile. It has been git-tracked since commit `21925c88`.
+
+The detail that makes this more than a slip: the consuming test carried the comment *"The fixture is a real LinkedIn export containing PII, so it is intentionally NOT committed."* It **was** committed. Someone knew the risk, believed the file was excluded, and was wrong — and that belief is almost certainly why it was never revisited. The same test also `console.log`ed the first 200 characters of the extracted profile into CI output on every run.
+
+Per the plan's standing instruction (replace, record, hand off — no checkpoint needed since no test contract was actually broken), the fixture was replaced, not deleted silently. Full redacted record in `09-FIXTURE-PROVENANCE.md`.
+
+## What was built
+
+**Task 1 — `src/test/security/phase9-pii-guard.test.ts`** (18 assertions, GREEN)
+
+Modeled 1:1 on Phase 2's `security-audit-docs.test.ts`. Auto-discovered by vitest's `src/**/*.test.ts` glob, so it sits inside `verify:baseline` with **no registration step and therefore no allowlist anyone can quietly drop it from**. It sweeps `.planning/phases/09-final-verification-milestone-report/**` (recursively — including any evidence subdirectory 09-11 creates) and `scripts/test-resumes/**` (including `Profile.pdf` as a binary) for:
+
+1. email addresses outside the declared allowlists,
+2. UUIDs outside `ALLOWED_RUN_IDS`,
+3. the Phase-2 `SECRET_PATTERNS` table (Stripe keys, JWTs, PEM, `postgres://`),
+4. fixture enrollment in the provenance record,
+5. byte-transparency of binary fixtures (new — see below).
+
+`ALLOWED_TEST_ACCOUNT_EMAILS` and `ALLOWED_RUN_IDS` ship **empty**, with comments naming plan 09-11 as the only place they may be appended. That emptiness is the point: every UUID appearing in the phase directory is either a deliberately-declared run id or it is RED, which is exactly what makes *"a production user's auth uid cannot ride along inside a log excerpt"* an enforceable claim rather than an aspiration.
+
+**Task 2 — `09-FIXTURE-PROVENANCE.md` + a synthetic `Profile.pdf`**
+
+All four fixtures now carry an explicit verdict. `short.txt` / `medium.txt` / `long.txt` are SYNTHETIC (fabricated personas, `555-xxx` reserved-fictional phone numbers, invented employers). `Profile.pdf` was REAL and is now SYNTHETIC. The replacement is generated by a committed, dependency-free script (`scripts/test-resumes/generate-synthetic-linkedin-pdf.mjs`) — so the binary has *reproducible provenance* instead of being an opaque blob nobody can vouch for. Its persona is fictional by construction: `example.com` (RFC 2606, can never route) and `(555) 010-1234` (NANP reserved-fictional range).
+
+## RED-before-GREEN demonstration
+
+Done twice, and the first one is the one that matters:
+
+**1. Against the actual real file.** Restored the genuine `Profile.pdf` from commit `21925c88` into the fixture path and ran the guard:
+
+```
+× no email address appears outside the declared allowlists
+× Profile.pdf stores its text as readable bytes (no compressed streams to hide PII in)
+  Tests  2 failed | 16 passed (18)
+```
+
+The guard catches the exact artifact it was built to catch, on two independent assertions. Regenerated the synthetic fixture → **18/18 GREEN**.
+
+**2. Simulating 09-11 pasting a production log excerpt.** Injected a routable-domain email and a production-shaped UUID into a scratch file in the phase dir:
+
+```
+× no email address appears outside the declared allowlists
+× no UUID (production user id / un-declared run id) appears outside the declared allowlists
+  Tests  2 failed | 16 passed (18)
+```
+
+Removed the scratch file → **18/18 GREEN**.
+
+## A blind spot found and closed while building the guard
+
+The plan specified scanning the PDF as a latin1 byte string. I assumed that would miss the real profile, since its text sits in `/FlateDecode` compressed streams — so I tested rather than assumed, and **the email sweep caught it anyway**: LinkedIn's exporter leaves an uncompressed `mailto:` link annotation in the object dictionary.
+
+But that is luck, not a control. A PDF whose text is *fully* compressed is a genuine blind spot — the sweep cannot certify what it cannot read, and "we scanned the binary" would have been a false statement. So compressibility itself is now forbidden: **a binary fixture must be byte-transparent or it fails the gate**, with the error message pointing at the generator. The real `Profile.pdf` trips this rule too (it uses FlateDecode), which is why the RED demo above shows two failures rather than one.
+
+## Deviations from Plan
+
+### Auto-fixed issues
+
+**1. [Rule 3 - Blocking] Task order swapped (Task 2 committed before Task 1)**
+- **Issue:** The guard's fixture-enrollment assertion reads `09-FIXTURE-PROVENANCE.md`, and its PII sweep reads `Profile.pdf`. Committing the guard first would have made it RED at its own commit (missing doc + real PII in the fixture), violating the plan's own `exits 0` verify for Task 1.
+- **Fix:** Committed the fixture remediation + provenance record first (`ef0815fb`), then the guard (`fe270be7`). Both tasks are individually committed and each commit is green.
+
+**2. [Rule 1 - Bug] Two tests hardcoded the real vanity URL**
+- **Found during:** Task 2 (one immediately; the second only surfaced in the full `npm run test` sweep — my initial grep was truncated at its result limit, a reminder not to trust a capped search as proof of absence).
+- **Issue:** `src/lib/__tests__/profile-pdf-reconstruct.test.ts:43` and `src/lib/__tests__/extract-pdf-text-empty-worker-fallback.test.ts:81` both asserted on the real person's LinkedIn handle.
+- **Fix:** Retargeted both to the synthetic handle. **The test contracts are unchanged** — each still proves the PDF has a recoverable text layer (keeping it out of the paid OCR path), still clears the `linkedin_profile` quality gate (>=420 chars / >=80 words), and still asserts a vanity URL + `TypeScript` survive extraction. Also deleted the `console.log` that echoed extracted profile content into CI output. Both pass.
+- **Note:** This is why the plan's "checkpoint if replacement breaks a test contract" clause was *not* triggered: the contracts survived intact, only the identity literal changed.
+
+**3. [Rule 1 - Bug] The guard false-positived on its own documentation (T-09-02-D, predicted by the plan)**
+- **Issue:** Two patterns fired on `09-02-PLAN.md` itself, which lives inside the scan root: the plan's threat model writes `service_role.*eyJ` (matching the Phase-2 `service_role[^a-zA-Z0-9]{0,40}eyJ` pattern), and its verify step writes `someone@example.com`.
+- **Fix (both VALUE-tunes, zero detection power lost):** anchored the `service_role` pattern to require an actual key **body** (`eyJ[A-Za-z0-9_-]{10,}` — a real JWT always has one, and the standalone `eyJ{30,}` rule catches it regardless); and treat RFC 2606 / RFC 6761 **reserved domains** as non-PII by construction, since `example.com` can never resolve to a real person's mailbox. The threat is a *routable* address (`@gmail.com`, a corporate domain) and that detection is untouched.
+- **Consequence — the plan's verify line is unsatisfiable as literally written.** It asks that injecting `someone@example.com` turn the guard RED, but that exact string is permanently present in the plan doc inside the scan root, so any allowlist that greens the plan doc necessarily de-fangs that marker. The RED demo therefore uses a **routable-domain** address instead, which is a strictly stronger demonstration — it simulates the real threat rather than a placeholder.
+
+**4. [Rule 2 - Missing critical control] Byte-transparency assertion for binary fixtures**
+- Added because the byte sweep cannot vet a compressed binary (see above). Not in the plan; the plan did anticipate the compressed case and asked for a fallback.
+
+### Scope note (not fixed)
+The plan's verify also says "4/4 pass". The guard has 18 assertions across the 4 (now 5) mandated families — the "4" referred to assertion families, not test count.
+
+## Verification
+
+| Check | Result |
+|---|---|
+| `npx vitest run src/test/security/phase9-pii-guard.test.ts` | **18/18 pass**, exit 0 |
+| Guard auto-discovered by `npm run test` (no registration) | **17 `T-09-02-*` test names** appear in the run output |
+| Full `npm run test` | **559 passed, 1 failed** — the only failure is 09-01's `ver02-matrix` assertion 4, RED **by design** until 09-08 |
+| `npx eslint` on all touched files | clean |
+| `git diff package.json` | **empty** — no npm dependency added |
+| `.gitignore` | untouched; no ignored file committed |
+| Existing PDF regression tests vs synthetic fixture | 2/2 and 1/1 pass — contracts preserved |
+
+## -> VER-05 report item 14 (remaining risks)
+
+1. **The real profile is still in git history.** Replacing the file at HEAD does not purge `21925c88` from the object store; anyone with clone access can recover it. A full purge needs `git filter-repo`/BFG plus a force-push that rewrites every downstream clone — an operator decision with real blast radius, deliberately not taken unilaterally inside a verification phase. **Recommendation: do it.** The data is a real person's name, personal email and mobile number, and the repo's exposure surface only grows (contributors, CI, any future open-sourcing or transfer).
+2. **The class of mistake, not just the instance.** A binary fixture entered the repo with no provenance record behind a code comment that asserted the opposite of the truth, and stayed for months. The durable fix is the guard: a new fixture with a non-allowlisted email/UUID, or one with no provenance entry, now fails the blocking gate.
+
+## Notes for plan 09-11
+
+- Append the two purpose-created production test-account addresses to `ALLOWED_TEST_ACCOUNT_EMAILS`, and every cited `analysis_jobs.id` to `ALLOWED_RUN_IDS`. Nothing else, ever. Anything you cannot allowlist is real user data and must not be committed.
+- Use only fixtures enrolled in `09-FIXTURE-PROVENANCE.md`. If you add one, add its provenance entry — the guard enforces this.
+- Screenshots are scanned too (they are files in the phase dir), but a *pixel* PII leak in a PNG is invisible to a byte scan. Redaction of screenshots remains a human obligation; the guard does not and cannot cover it.
+
+## Self-Check: PASSED
+
+- `src/test/security/phase9-pii-guard.test.ts` — FOUND
+- `scripts/test-resumes/generate-synthetic-linkedin-pdf.mjs` — FOUND
+- `.planning/phases/09-final-verification-milestone-report/09-FIXTURE-PROVENANCE.md` — FOUND
+- Commit `ef0815fb` — FOUND
+- Commit `fe270be7` — FOUND

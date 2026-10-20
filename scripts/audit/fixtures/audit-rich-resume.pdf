@@ -1,0 +1,72 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 2627 >>
+stream
+BT
+/F1 11 Tf
+1 0 0 1 56 760 Tm (Jordan Ellis) Tj
+1 0 0 1 56 738 Tm (Senior Backend Engineer) Tj
+1 0 0 1 56 716 Tm (San Francisco, CA) Tj
+1 0 0 1 56 694 Tm (jordan.ellis@example.com  |  github.com/jellis  |  linkedin.com/in/jellis) Tj
+1 0 0 1 56 672 Tm () Tj
+1 0 0 1 56 650 Tm (PROFESSIONAL SUMMARY) Tj
+1 0 0 1 56 628 Tm (Backend engineer with six years building distributed data platforms at scale.) Tj
+1 0 0 1 56 606 Tm (Specializes in event streaming, Postgres performance, and reliability engineering.) Tj
+1 0 0 1 56 584 Tm () Tj
+1 0 0 1 56 562 Tm (EXPERIENCE) Tj
+1 0 0 1 56 540 Tm (Northwind Systems, San Francisco, CA) Tj
+1 0 0 1 56 518 Tm (Senior Backend Engineer \(2022 - 2026\)) Tj
+1 0 0 1 56 496 Tm (- Built a Go event-ingestion service handling twelve million events per day.) Tj
+1 0 0 1 56 474 Tm (- Cut p99 latency from eight hundred forty milliseconds to one hundred ninety.) Tj
+1 0 0 1 56 452 Tm (- Migrated billing reconciliation to Postgres partitioning; nightly job six hours to forty minutes.) Tj
+1 0 0 1 56 430 Tm (- Led the on-call rotation and drove incident count down sixty percent year over year.) Tj
+1 0 0 1 56 408 Tm (- Designed the Kafka topic topology now used by four downstream teams.) Tj
+1 0 0 1 56 386 Tm () Tj
+1 0 0 1 56 364 Tm (Cobalt Labs, Austin, TX) Tj
+1 0 0 1 56 342 Tm (Backend Engineer \(2020 - 2022\)) Tj
+1 0 0 1 56 320 Tm (- Implemented an idempotent Stripe webhook receiver processing four hundred thousand events monthly.) Tj
+1 0 0 1 56 298 Tm (- Added Redis-backed rate limiting; abuse-driven server errors dropped ninety two percent.) Tj
+1 0 0 1 56 276 Tm (- Built the Testcontainers integration suite that caught fourteen regressions before release.) Tj
+1 0 0 1 56 254 Tm () Tj
+1 0 0 1 56 232 Tm (Initech, Remote) Tj
+1 0 0 1 56 210 Tm (Software Engineer \(2018 - 2020\)) Tj
+1 0 0 1 56 188 Tm (- Delivered customer-facing React features used by two million monthly users.) Tj
+1 0 0 1 56 166 Tm (- Automated the continuous integration pipeline, halving release time.) Tj
+1 0 0 1 56 144 Tm () Tj
+1 0 0 1 56 122 Tm (PROJECTS) Tj
+1 0 0 1 56 100 Tm (Raft consensus implementation in Rust with leader election and log replication.) Tj
+1 0 0 1 56 78 Tm (Distributed key-value store with an LSM-tree storage engine at ninety thousand writes per second.) Tj
+1 0 0 1 56 56 Tm () Tj
+1 0 0 1 56 34 Tm (EDUCATION) Tj
+1 0 0 1 56 12 Tm (Bachelor of Science in Computer Science, University of California Irvine, 2018.) Tj
+1 0 0 1 56 -10 Tm () Tj
+1 0 0 1 56 -32 Tm (SKILLS) Tj
+1 0 0 1 56 -54 Tm (Go, Rust, Python, TypeScript, PostgreSQL, Redis, Kafka, Kubernetes, AWS, Terraform, Prometheus.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000002920 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2990
+%%EOF

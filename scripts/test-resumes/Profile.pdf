@@ -1,0 +1,114 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 7 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 2062 >>
+stream
+BT
+/F1 10 Tf
+13 TL
+1 0 0 1 56 760 Tm
+(Contact) Tj T*
+(\(555\) 010-1234 \(Mobile\)) Tj T*
+(taylor.rivera@example.com) Tj T*
+(www.linkedin.com/in/taylor-rivera-synthetic \(LinkedIn\)) Tj T*
+T*
+(Top Skills) Tj T*
+(TypeScript) Tj T*
+(Python \(Programming Language\)) Tj T*
+(Distributed Systems) Tj T*
+T*
+(Languages) Tj T*
+(Spanish \(Professional Working\)) Tj T*
+(English \(Native or Bilingual\)) Tj T*
+T*
+(Taylor Rivera) Tj T*
+(Senior Software Engineer | Platform & Reliability) Tj T*
+(Austin, Texas, United States) Tj T*
+T*
+(Summary) Tj T*
+(Backend engineer focused on high-throughput services and the operational) Tj T*
+(discipline that keeps them healthy. At Northwind Systems I led the migration) Tj T*
+(of a monolithic billing service onto an event-driven platform, cutting median) Tj T*
+(checkout latency from 940ms to 210ms while holding error budgets intact.) Tj T*
+(I care about measurable reliability, honest postmortems, and paying down) Tj T*
+(complexity before it compounds into an outage.) Tj T*
+T*
+(Experience) Tj T*
+T*
+(Northwind Systems) Tj T*
+(Senior Software Engineer) Tj T*
+(March 2023 - Present \(2 years 4 months\)) Tj T*
+(Austin, TX) Tj T*
+(Led the decomposition of a billing monolith into six event-driven services,) Tj T*
+(reducing median checkout latency 78% and eliminating a recurring class of) Tj T*
+(double-charge incidents. Introduced idempotency keys across every payment) Tj T*
+(write path. Built the on-call runbook and cut mean time to recovery by half.) Tj T*
+T*
+(Cobalt Analytics) Tj T*
+(Software Engineer) Tj T*
+(July 2020 - February 2023 \(2 years 8 months\)) Tj T*
+(Remote) Tj T*
+(Built a streaming ingestion pipeline in TypeScript and Python that sustained) Tj T*
+(40k events per second with exactly-once delivery semantics. Designed the) Tj T*
+(schema-evolution strategy that let 30+ downstream consumers upgrade without) Tj T*
+(coordinated deploys.) Tj T*
+T*
+(Education) Tj T*
+T*
+(Western Plains University) Tj T*
+(Bachelor of Science - BS, Computer Science \(September 2016 - June 2020\)) Tj T*
+T*
+(Page 1 of 2) Tj T*
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 7 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 227 >>
+stream
+BT
+/F1 10 Tf
+13 TL
+1 0 0 1 56 760 Tm
+(Certifications) Tj T*
+(Certified Kubernetes Application Developer) Tj T*
+T*
+(Honors & Awards) Tj T*
+(Internal Reliability Award, Northwind Systems \(2024\)) Tj T*
+T*
+(Page 2 of 2) Tj T*
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+8 0 obj
+<< /Title (Profile) /Author (Synthetic Fixture) /Subject (Synthetic LinkedIn profile export - Strivo test fixture, not a real person) /Producer (strivo generate-synthetic-linkedin-pdf.mjs) /CreationDate (D:20260711000000Z) >>
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000247 00000 n 
+0000002360 00000 n 
+0000002486 00000 n 
+0000002763 00000 n 
+0000002860 00000 n 
+trailer
+<< /Size 9 /Root 1 0 R /Info 8 0 R >>
+startxref
+3101
+%%EOF

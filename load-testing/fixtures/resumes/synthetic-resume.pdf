@@ -1,0 +1,61 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 1728 >>
+stream
+BT
+/F1 11 Tf
+1 0 0 1 56 760 Tm (Synthetic Loadtest Candidate) Tj
+1 0 0 1 56 738 Tm (Senior Software Engineer) Tj
+1 0 0 1 56 716 Tm (Portland, OR) Tj
+1 0 0 1 56 694 Tm (candidate@loadtest.strivio.invalid  |  github.com/synthetic-loadtest) Tj
+1 0 0 1 56 672 Tm () Tj
+1 0 0 1 56 650 Tm (PROFESSIONAL SUMMARY) Tj
+1 0 0 1 56 628 Tm (Senior software engineer with eight years of experience building reliable,) Tj
+1 0 0 1 56 606 Tm (scalable web platforms and leading cross-functional engineering teams.) Tj
+1 0 0 1 56 584 Tm () Tj
+1 0 0 1 56 562 Tm (EXPERIENCE) Tj
+1 0 0 1 56 540 Tm (Synthetic Systems Inc., Portland, OR) Tj
+1 0 0 1 56 518 Tm (Senior Software Engineer \(2020 - 2024\)) Tj
+1 0 0 1 56 496 Tm (- Built and shipped scalable web services in TypeScript, Node, and Postgres.) Tj
+1 0 0 1 56 474 Tm (- Led a team of four engineers and improved deployment reliability by forty percent.) Tj
+1 0 0 1 56 452 Tm (- Reduced average API latency from ninety to forty milliseconds through caching.) Tj
+1 0 0 1 56 430 Tm (- Mentored junior engineers and established the team code-review standards.) Tj
+1 0 0 1 56 408 Tm () Tj
+1 0 0 1 56 386 Tm (Placeholder Labs, Remote) Tj
+1 0 0 1 56 364 Tm (Software Engineer \(2016 - 2020\)) Tj
+1 0 0 1 56 342 Tm (- Designed and delivered customer-facing React features used by many users.) Tj
+1 0 0 1 56 320 Tm (- Automated the continuous integration pipeline, cutting release time in half.) Tj
+1 0 0 1 56 298 Tm () Tj
+1 0 0 1 56 276 Tm (EDUCATION) Tj
+1 0 0 1 56 254 Tm (Bachelor of Science in Computer Science, State University, 2016) Tj
+1 0 0 1 56 232 Tm () Tj
+1 0 0 1 56 210 Tm (SKILLS) Tj
+1 0 0 1 56 188 Tm (TypeScript, JavaScript, React, Node, Postgres, Supabase, Playwright, CI/CD, AWS.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000002021 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2091
+%%EOF

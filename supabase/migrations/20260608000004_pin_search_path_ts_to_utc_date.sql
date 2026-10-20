@@ -1,0 +1,32 @@
+-- DB-05 (Plan 08-03): pin search_path on ts_to_utc_date with the empty string.
+--
+-- Symptom (advisor: function_search_path_mutable, WARN):
+--   public.ts_to_utc_date(timestamptz) has no pinned search_path. An attacker who can
+--   create objects in a schema earlier on the search path could shadow an unqualified
+--   reference (search-path injection). Splinter lint 0011 flags this.
+--
+-- Root cause:
+--   The function was created (20260525000005_phase42_layer4_applications_outcomes.sql:479)
+--   without SET search_path, so it inherits the caller's mutable search_path.
+--
+-- Zero-change rationale (why = '' is SAFE here):
+--   The body is `SELECT ($1 AT TIME ZONE 'UTC')::date` -- it references NO schema objects
+--   (no table, no function, no type beyond built-ins). With search_path = '' there is
+--   nothing to fail to resolve, so the pin is provably zero-change. (Contrast:
+--   increment_rate_limit references UNQUALIFIED public.rate_limit_counters and would 500
+--   under = '' -- that function is DEFERRED to Plan 08-04 with = public, and is NOT touched here.)
+--
+-- Why ALTER FUNCTION (not CREATE OR REPLACE):
+--   ts_to_utc_date backs the UNIQUE INDEX idx_benchmarks_unique_per_day
+--   (20260525000005:487-488). ALTER FUNCTION ... SET changes only the search_path
+--   attribute and leaves the body/volatility/index dependency untouched; CREATE OR REPLACE
+--   would re-define the body and risk disturbing the dependent index.
+--
+-- Re-runnability (NFR-01): ALTER FUNCTION ... SET is idempotent (safe to re-apply).
+
+-- ── FORWARD ───────────────────────────────────────────────────────────────────
+ALTER FUNCTION public.ts_to_utc_date(timestamptz) SET search_path = '';
+
+-- ── ROLLBACK (DB-06) ──────────────────────────────────────────────────────────
+-- Restores the captured prior state (proconfig = null, i.e. no pinned search_path):
+--   ALTER FUNCTION public.ts_to_utc_date(timestamptz) RESET search_path;

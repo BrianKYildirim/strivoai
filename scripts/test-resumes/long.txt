@@ -1,0 +1,119 @@
+JORDAN MITCHELL
+jordanm@stanford.edu | (555) 345-6789 | linkedin.com/in/jordanmitchell | github.com/jmitchell-dev
+Palo Alto, CA | Portfolio: jordanmitchell.dev
+
+EDUCATION
+
+Stanford University
+Bachelor of Science in Electrical Engineering, Minor in Computer Science
+Expected Graduation: June 2026
+GPA: 3.81/4.00
+- Dean's List: All quarters since enrollment
+- Relevant Coursework: Machine Learning, Computer Vision, Embedded Systems, Digital Signal Processing, Operating Systems, Database Systems, Linear Algebra, Probability and Statistics, Software Engineering Methodologies
+
+EXPERIENCE
+
+Software Engineering Intern
+Stripe, San Francisco, CA
+June 2025 - September 2025
+- Designed and implemented a microservice for real-time fraud detection that processed 2M+ transactions daily with sub-100ms latency
+- Built a feature flag rollout system using Go that enabled gradual deployment of new fraud detection rules across 15 geographic regions
+- Reduced false positive rates by 22% by implementing a gradient boosting model trained on 6 months of historical transaction data
+- Collaborated with 3 cross-functional teams (payments, risk, and infrastructure) during bi-weekly architecture reviews
+- Authored internal documentation and runbooks for the fraud detection pipeline, used by 20+ engineers across the organization
+- Participated in on-call rotation, responding to and resolving 4 production incidents with minimal customer impact
+
+Software Engineering Intern
+Figma, San Francisco, CA
+June 2024 - September 2024
+- Developed a plugin API extension that enabled third-party developers to create custom design linting rules, adopted by 500+ plugin creators within 3 months
+- Optimized the canvas rendering pipeline for large documents, achieving a 35% reduction in frame drop frequency for files with 10,000+ layers
+- Implemented accessibility improvements to the color picker component, ensuring WCAG 2.1 AA compliance and improving usability for colorblind users
+- Wrote comprehensive integration tests using Playwright, covering 40 critical user workflows with 98% pass rate in CI pipeline
+- Presented technical talk on rendering optimization techniques to the engineering team of 60
+
+Research Assistant
+Stanford Computer Vision Lab (Prof. Sarah Chen)
+September 2023 - June 2024
+- Contributed to research on few-shot object detection in medical imaging, focusing on identifying rare pathologies in X-ray scans
+- Implemented and benchmarked 5 state-of-the-art few-shot learning algorithms using PyTorch on a cluster of 8 NVIDIA A100 GPUs
+- Developed a custom data augmentation pipeline that improved model performance by 15% on the CheXpert medical imaging dataset
+- Co-authored a paper accepted at MICCAI 2024 workshop on medical image analysis (see Publications)
+- Managed dataset curation and annotation workflows for a team of 4 undergraduate research assistants
+
+PROJECTS
+
+HealthTrack - Personal Health Monitoring Web Application
+January 2025 - March 2025
+- Architected and built a full-stack health monitoring application using Next.js, TypeScript, and Supabase
+- Implemented real-time data synchronization across devices using Supabase Realtime subscriptions
+- Designed a responsive dashboard with Tailwind CSS and Recharts that displays health metrics, trends, and personalized recommendations
+- Integrated with Apple HealthKit and Google Fit APIs to automatically import exercise, sleep, and nutrition data
+- Deployed on Vercel with CI/CD pipeline using GitHub Actions, achieving 99.9% uptime over 3 months of operation
+
+ML Pipeline for Satellite Image Classification
+September 2024 - December 2024
+- Built an end-to-end machine learning pipeline for classifying land use patterns from Sentinel-2 satellite imagery
+- Trained a ResNet-50 model with transfer learning on 100,000+ labeled satellite image patches, achieving 94.2% classification accuracy
+- Implemented distributed training using PyTorch DDP across 4 GPUs, reducing training time from 18 hours to 5 hours
+- Created an interactive visualization tool using Streamlit that allows researchers to explore classification results on an interactive map
+- Published the dataset and trained model weights on Hugging Face Hub, receiving 200+ downloads in the first month
+
+Embedded Weather Station with IoT Dashboard
+March 2024 - June 2024
+- Designed and built a custom weather station using an ESP32 microcontroller with temperature, humidity, barometric pressure, and wind speed sensors
+- Developed firmware in C++ using the Arduino framework with over-the-air (OTA) update capability
+- Created a real-time IoT dashboard using React and MQTT protocol that displays live sensor readings and historical trends
+- Implemented power management features achieving 72-hour battery life on a single charge with solar panel backup
+- Documented the full build process in a series of blog posts that received 5,000+ views on the project website
+
+Open Source Contribution - TensorFlow Lite
+October 2023 - February 2024
+- Contributed to TensorFlow Lite for Microcontrollers project, optimizing inference performance for ARM Cortex-M processors
+- Implemented quantization-aware training support for 3 additional model architectures (MobileNetV3, EfficientNet-Lite, YOLO-Tiny)
+- Submitted 8 pull requests with 100% acceptance rate, including performance benchmarks showing 20-40% inference speedup
+- Engaged with the open source community through code reviews, issue triage, and mentoring 2 new contributors
+
+PUBLICATIONS
+
+Mitchell, J., Chen, S., et al. "Few-Shot Pathology Detection in Chest X-Rays via Meta-Learning with Anatomical Priors." MICCAI 2024 Workshop on Medical Image Analysis. Springer LNCS, 2024.
+
+SKILLS
+
+Programming Languages: Python, C++, Go, TypeScript, JavaScript, Rust, Java, SQL, MATLAB
+ML/AI Frameworks: PyTorch, TensorFlow, scikit-learn, Hugging Face Transformers, ONNX Runtime
+Web Technologies: React, Next.js, Node.js, Tailwind CSS, Supabase, PostgreSQL, Redis, GraphQL
+DevOps/Tools: Git, GitHub Actions, Docker, Kubernetes, AWS (EC2, S3, Lambda), GCP (Compute Engine, BigQuery), Terraform
+Embedded/Hardware: ESP32, Arduino, Raspberry Pi, MQTT, I2C/SPI protocols, PCB design (KiCad)
+Data Science: Pandas, NumPy, Matplotlib, Plotly, Jupyter, Apache Spark, dbt
+
+LEADERSHIP
+
+President, Stanford Robotics Club
+September 2024 - Present
+- Lead a team of 45 members in designing and building autonomous robots for the RoboCup competition
+- Secured $12,000 in funding from the School of Engineering and 3 corporate sponsors (NVIDIA, Boston Dynamics, Qualcomm)
+- Organized weekly technical workshops on ROS, computer vision, and path planning attended by 30+ members
+- Mentored 10 new members on embedded programming and sensor integration during the fall onboarding program
+
+Teaching Assistant, CS 229 - Machine Learning (Stanford)
+January 2025 - March 2025
+- Held weekly office hours serving 40+ students, covering supervised learning, neural networks, and reinforcement learning
+- Graded assignments and provided detailed feedback for a class of 250 students
+- Developed 3 new homework problems on transformer architectures that were adopted into the official curriculum
+
+Volunteer Instructor, Code.org Hour of Code Initiative
+September 2023 - June 2025
+- Taught introductory programming concepts to 200+ middle school students across 6 Bay Area schools
+- Developed custom lesson plans tailored to different age groups and skill levels
+- Recruited and trained 8 fellow Stanford students as co-instructors for the program
+
+AWARDS AND HONORS
+
+Stanford Engineering Excellence Award
+June 2025
+- Awarded to top 5% of engineering undergraduates for academic achievement and research contributions
+
+National Science Foundation (NSF) Research Experience for Undergraduates (REU) Fellow
+Summer 2024
+- Competitive fellowship supporting undergraduate research in computer science, funded by NSF grant #2345678
